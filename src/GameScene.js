@@ -77,8 +77,7 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	create() {
-		const width = this.scale.width;
-		const height = this.scale.height;
+		const { width, height } = this.scale;
 
 		createAlignedParallax(this, 3, 'background_shrubbery_shadow', 0.3);
 		createAlignedParallax(this, 3, 'background_shrubbery', 0.4);
@@ -120,7 +119,7 @@ export default class GameScene extends Phaser.Scene {
 	update() {
 		const cam = this.cameras.main;
 		const speed = 3;
-		const width = this.scale.width;
+		const { width } = this.scale;
 
 		if (cursors.left.isDown) {
 			goober.flipX = true;
