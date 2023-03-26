@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 
-let platforms;
 let goober;
 let cursors;
 let ground;
@@ -85,8 +84,10 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	create() {
+		// SCENE CONSTANTS
 		const { width, height } = this.scale;
 
+		// BACKGROUND LAYERS
 		createAlignedParallax(this, 3, 'background_shrubbery_shadow', 0.3);
 		createAlignedParallax(this, 3, 'background_shrubbery', 0.4);
 		createAlignedParallax(this, 3, 'secondary_lights', 0.5);
@@ -96,10 +97,9 @@ export default class GameScene extends Phaser.Scene {
 		createAlignedParallax(this, 3, 'tree_bottoms', 0.9);
 		createAlignedParallax(this, 3, 'lights_forefront', 0.9);
 		createAlignedParallax(this, 3, 'grass_ground', 0.9);
+		createAlignedParallax(this, 3, 'shadow_ground', 0.9);
 
-		platforms = this.physics.add.staticGroup();
-		platforms.create(200, 570, 'platform').setImmovable(true);
-
+		// OBSTACLES AND BACKGROUND
 		const map = this.make.tilemap({ key: 'tilemap' });
 		const tileset = map.addTilesetImage(
 			'mossyPlatformsSmall',
@@ -107,17 +107,12 @@ export default class GameScene extends Phaser.Scene {
 		);
 		ground = map.createLayer('ground', tileset);
 		ground.setCollisionByProperty({ collides: true });
-		console.log(ground);
+
+		// SPRITES
 		goober = this.physics.add
 			.sprite(100, 200, 'goober')
 			.setScale(2, 2)
 			.setBounce(0.3);
-
-		this.physics.add.collider(ground, goober, (ground) => {
-			groundY = ground.y;
-		});
-
-		createAlignedParallax(this, 3, 'shadow_ground', 0.9);
 
 		this.anims.create({
 			key: 'move',
@@ -129,8 +124,15 @@ export default class GameScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
+		// COLLIDERS
+		this.physics.add.collider(ground, goober, (ground) => {
+			groundY = ground.y;
+		});
+
+		// KEYBOARD CONTROLLER INITIALISE
 		cursors = this.input.keyboard.createCursorKeys();
 
+		// CAMERAS
 		this.cameras.main.setBounds(0, 0, width * 3, height);
 	}
 
@@ -138,6 +140,10 @@ export default class GameScene extends Phaser.Scene {
 		const cam = this.cameras.main;
 		const speed = 3;
 		const { width } = this.scale;
+
+		if (goober.x > width * 0.5) {
+			cam.startFollow(goober);
+		}
 
 		if (cursors.left.isDown) {
 			goober.flipX = true;
@@ -148,15 +154,15 @@ export default class GameScene extends Phaser.Scene {
 			goober.flipX = false;
 			goober.setVelocityX(200);
 			goober.anims.play('move', true);
-			if (goober.x > width * 0.5) {
-				cam.scrollX += speed;
-			}
 		} else {
 			goober.setVelocityX(0);
 			goober.anims.play('move', false);
 		}
 
-		if (cursors.up.isDown && goober.y === groundY) {
+		if (
+			Phaser.Input.Keyboard.JustDown(cursors.up) &&
+			goober.y === groundY
+		) {
 			goober.setVelocityY(-200);
 			goober.anims.play('move', false);
 		}
