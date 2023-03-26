@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
+import { Lasers } from './Lasers';
 
-let goober;
+export let goober;
 let cursors;
 let ground;
 let groundY;
-let facingForward = true;
+export let facingForward = true;
 /**
  * @param {Phaser.Scene} scene
  * @param {number} count
@@ -22,54 +23,6 @@ const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 		x += m.width;
 	}
 };
-
-class Laser extends Phaser.Physics.Arcade.Sprite {
-	constructor(scene, x, y) {
-		super(scene, x, y, 'unchargedLaser');
-	}
-
-	fire(x, y) {
-		this.body.reset(x, y);
-		this.setActive(true);
-		this.setVisible(true);
-		if (facingForward) {
-			this.setVelocityX(300);
-		} else {
-			this.setVelocityX(-300);
-			this.setFlipX(true);
-		}
-	}
-
-	preUpdate(time, delta) {
-		super.preUpdate(time, delta);
-		if (this.x >= goober.x + 800) {
-			this.setActive(false);
-			this.setVisible(false);
-		}
-	}
-}
-
-class Lasers extends Phaser.Physics.Arcade.Group {
-	constructor(scene) {
-		super(scene.physics.world, scene);
-
-		this.createMultiple({
-			frameQuantity: 10,
-			key: 'unchargedLaser',
-			active: false,
-			visible: false,
-			classType: Laser,
-		});
-	}
-
-	fireLaser(x, y) {
-		let laser = this.getFirstDead(false);
-
-		if (laser) {
-			laser.fire(x, y);
-		}
-	}
-}
 
 export default class GameScene extends Phaser.Scene {
 	constructor() {
@@ -204,7 +157,6 @@ export default class GameScene extends Phaser.Scene {
 		};
 
 		// add the animation to the animation manager
-
 		this.anims.create(config);
 
 		// KEYBOARD CONTROLLER INITIALISE
