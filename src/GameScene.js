@@ -30,47 +30,23 @@ export default class GameScene extends Phaser.Scene {
 	}
 	preload() {
 		// BACKGROUND IMAGES
-		this.load.image(
-			'grass_ground',
-			'/assets/backgroundLayers/Layer_0001_8.png'
-		);
-		this.load.image(
-			'tree_tops',
-			'/assets/backgroundLayers/Layer_0002_7.png'
-		);
-		this.load.image(
-			'secondary_tree_bottoms',
-			'/assets/backgroundLayers/Layer_0005_5.png'
-		);
-		this.load.image(
-			'tree_bottoms',
-			'/assets/backgroundLayers/Layer_0003_6.png'
-		);
-		this.load.image(
-			'primary_shrubery',
-			'/assets/backgroundLayers/Layer_0006_4.png'
-		);
-		this.load.image(
-			'secondary_lights',
-			'/assets/backgroundLayers/Layer_0007_Lights.png'
-		);
-		this.load.image(
-			'background_shrubbery',
-			'/assets/backgroundLayers/Layer_0009_2.png'
-		);
-		this.load.image(
-			'background_shrubbery_shadow',
-			'/assets/backgroundLayers/Layer_0008_3.png'
-		);
-		this.load.image(
-			'lights_forefront',
-			'/assets/backgroundLayers/Layer_0004_Lights.png'
-		);
-		this.load.image(
-			'shadow_ground',
-			'/assets/backgroundLayers/Layer_0000_9.png'
-		);
-		this.load.image('platform', '/assets/backgroundLayers/platform.png');
+		const allBackgrounds = {
+			grass_ground: '/assets/backgroundLayers/Layer_0001_8.png',
+			tree_tops: '/assets/backgroundLayers/Layer_0002_7.png',
+			secondary_tree_bottoms: '/assets/backgroundLayers/Layer_0005_5.png',
+			tree_bottoms: '/assets/backgroundLayers/Layer_0003_6.png',
+			primary_shrubery: '/assets/backgroundLayers/Layer_0006_4.png',
+			secondary_lights: '/assets/backgroundLayers/Layer_0007_Lights.png',
+			background_shrubbery: '/assets/backgroundLayers/Layer_0009_2.png',
+			background_shrubbery_shadow:
+				'/assets/backgroundLayers/Layer_0008_3.png',
+			lights_forefront: '/assets/backgroundLayers/Layer_0004_Lights.png',
+			shadow_ground: '/assets/backgroundLayers/Layer_0000_9.png',
+		};
+		for (const [key, value] of Object.entries(allBackgrounds)) {
+			console.log(`${key}: ${value}`);
+			this.load.image(key, value);
+		}
 
 		// SPRITES
 		this.load.atlas(
