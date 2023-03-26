@@ -3,6 +3,8 @@ import Phaser from 'phaser';
 let platforms;
 let goober;
 let cursors;
+let ground;
+let groundY;
 
 /**
  * @param {Phaser.Scene} scene
@@ -74,6 +76,12 @@ export default class GameScene extends Phaser.Scene {
 			'/assets/sprites/Goober.png',
 			'/assets/sprites/Goober.json'
 		);
+
+		this.load.image(
+			'mossyObstacles',
+			'/assets/obstacles/mossyPlatformsSmall.png'
+		);
+		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/game.json');
 	}
 
 	create() {
@@ -87,15 +95,27 @@ export default class GameScene extends Phaser.Scene {
 		createAlignedParallax(this, 3, 'tree_tops', 0.9);
 		createAlignedParallax(this, 3, 'tree_bottoms', 0.9);
 		createAlignedParallax(this, 3, 'lights_forefront', 0.9);
+		createAlignedParallax(this, 3, 'grass_ground', 0.9);
 
 		platforms = this.physics.add.staticGroup();
 		platforms.create(200, 570, 'platform').setImmovable(true);
-		createAlignedParallax(this, 3, 'grass_ground', 0.9);
 
+		const map = this.make.tilemap({ key: 'tilemap' });
+		const tileset = map.addTilesetImage(
+			'mossyPlatformsSmall',
+			'mossyObstacles'
+		);
+		ground = map.createLayer('ground', tileset);
+		ground.setCollisionByProperty({ collides: true });
+		console.log(ground);
 		goober = this.physics.add
 			.sprite(100, 200, 'goober')
 			.setScale(2, 2)
 			.setBounce(0.3);
+
+		this.physics.add.collider(ground, goober, (ground) => {
+			groundY = ground.y;
+		});
 
 		createAlignedParallax(this, 3, 'shadow_ground', 0.9);
 
@@ -108,8 +128,6 @@ export default class GameScene extends Phaser.Scene {
 			}),
 			repeat: -1,
 		});
-
-		this.physics.add.collider(goober, platforms);
 
 		cursors = this.input.keyboard.createCursorKeys();
 
@@ -138,7 +156,7 @@ export default class GameScene extends Phaser.Scene {
 			goober.anims.play('move', false);
 		}
 
-		if (cursors.up.isDown && goober.body.touching.down) {
+		if (cursors.up.isDown && goober.y === groundY) {
 			goober.setVelocityY(-200);
 			goober.anims.play('move', false);
 		}
