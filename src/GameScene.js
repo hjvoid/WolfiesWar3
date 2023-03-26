@@ -4,7 +4,7 @@ let goober;
 let cursors;
 let ground;
 let groundY;
-
+let facingForward = true;
 /**
  * @param {Phaser.Scene} scene
  * @param {number} count
@@ -23,11 +23,60 @@ const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 	}
 };
 
+class Laser extends Phaser.Physics.Arcade.Sprite {
+	constructor(scene, x, y) {
+		super(scene, x, y, 'unchargedLaser');
+	}
+
+	fire(x, y) {
+		this.body.reset(x, y);
+		this.setActive(true);
+		this.setVisible(true);
+		if (facingForward) {
+			this.setVelocityX(300);
+		} else {
+			this.setVelocityX(-300);
+			this.setFlipX(true);
+		}
+	}
+
+	preUpdate(time, delta) {
+		super.preUpdate(time, delta);
+		if (this.x >= goober.x + 800) {
+			this.setActive(false);
+			this.setVisible(false);
+		}
+	}
+}
+
+class Lasers extends Phaser.Physics.Arcade.Group {
+	constructor(scene) {
+		super(scene.physics.world, scene);
+
+		this.createMultiple({
+			frameQuantity: 10,
+			key: 'unchargedLaser',
+			active: false,
+			visible: false,
+			classType: Laser,
+		});
+	}
+
+	fireLaser(x, y) {
+		let laser = this.getFirstDead(false);
+
+		if (laser) {
+			laser.fire(x, y);
+		}
+	}
+}
+
 export default class GameScene extends Phaser.Scene {
 	constructor() {
 		super('game-scene');
 	}
 	preload() {
+		// BACKGROUND IMAGES
 		this.load.image(
 			'grass_ground',
 			'/assets/backgroundLayers/Layer_0001_8.png'
@@ -70,12 +119,19 @@ export default class GameScene extends Phaser.Scene {
 		);
 		this.load.image('platform', '/assets/backgroundLayers/platform.png');
 
+		// SPRITES
 		this.load.atlas(
 			'goober',
 			'/assets/sprites/Goober.png',
 			'/assets/sprites/Goober.json'
 		);
-
+		//PROJECTILES
+		this.load.atlas(
+			'unchargedLaser',
+			'/assets/sprites/projectiles/unchargedLaser.png',
+			'/assets/sprites/projectiles/unchargedLaser.json'
+		);
+		//PLATFORMS AND OBSTACLES
 		this.load.image(
 			'mossyObstacles',
 			'/assets/obstacles/mossyPlatformsSmall.png'
@@ -128,6 +184,28 @@ export default class GameScene extends Phaser.Scene {
 		this.physics.add.collider(ground, goober, (ground) => {
 			groundY = ground.y;
 		});
+		//PROJECTILES
+		this.lasers = new Lasers(this);
+		this.physics.world.enable(this.lasers);
+		this.lasers.children.iterate((laser) => {
+			this.physics.world.enable(laser);
+			laser.body.setAllowGravity(false);
+		});
+
+		// create a new animation
+		var config = {
+			key: 'waveform',
+			frames: this.anims.generateFrameNames('unchargedLaser', {
+				prefix: 'waveform',
+				end: 3,
+				zeroPad: 3,
+			}),
+			repeat: -1,
+		};
+
+		// add the animation to the animation manager
+
+		this.anims.create(config);
 
 		// KEYBOARD CONTROLLER INITIALISE
 		cursors = this.input.keyboard.createCursorKeys();
@@ -146,11 +224,13 @@ export default class GameScene extends Phaser.Scene {
 		}
 
 		if (cursors.left.isDown) {
+			facingForward = false;
 			goober.flipX = true;
 			goober.setVelocityX(-200);
 			goober.anims.play('move', true);
 			cam.scrollX -= speed;
 		} else if (cursors.right.isDown) {
+			facingForward = true;
 			goober.flipX = false;
 			goober.setVelocityX(200);
 			goober.anims.play('move', true);
@@ -165,6 +245,11 @@ export default class GameScene extends Phaser.Scene {
 		) {
 			goober.setVelocityY(-200);
 			goober.anims.play('move', false);
+		}
+
+		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
+			this.lasers.fireLaser(goober.x, goober.y);
+			this.lasers.playAnimation('waveform');
 		}
 	}
 }
