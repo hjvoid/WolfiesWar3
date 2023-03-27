@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Lasers } from './Lasers';
 
-export let goober;
+export let wolfie;
 let cursors;
 let ground;
 let groundY;
@@ -50,9 +50,9 @@ export default class GameScene extends Phaser.Scene {
 
 		// SPRITES
 		this.load.atlas(
-			'goober',
-			'/assets/sprites/Goober.png',
-			'/assets/sprites/Goober.json'
+			'wolfie',
+			'/assets/sprites/wolfie.png',
+			'/assets/sprites/wolfie.json'
 		);
 		//PROJECTILES
 		this.load.atlas(
@@ -94,23 +94,43 @@ export default class GameScene extends Phaser.Scene {
 		ground.setCollisionByProperty({ collides: true });
 
 		// SPRITES
-		goober = this.physics.add
-			.sprite(100, 200, 'goober')
-			.setScale(2, 2)
+		wolfie = this.physics.add
+			.sprite(100, 200, 'wolfie')
+			.setScale(0.2, 0.2)
 			.setBounce(0.3);
+		wolfie.flipX = true;
 
 		this.anims.create({
-			key: 'move',
-			frames: this.anims.generateFrameNames('goober', {
-				prefix: 'move',
-				end: 7,
-				zeroPad: 3,
+			key: 'run',
+			frames: this.anims.generateFrameNames('wolfie', {
+				prefix: 'run',
+				end: 4,
+				zeroPad: 4,
 			}),
+			frameRate: 12,
 			repeat: -1,
 		});
 
+		this.anims.create({
+			key: 'stationary',
+			frames: this.anims.generateFrameNames('wolfie', {
+				prefix: 'stationary',
+				end: 3,
+				zeroPad: 4,
+			}),
+			frameRate: 4,
+			repeat: -1,
+		});
+
+		this.anims.create({
+			key: 'jump',
+			frames: [{ key: 'wolfie', frame: 0 }],
+			frameRate: 1,
+			repeat: 10,
+		});
+
 		// COLLIDERS
-		this.physics.add.collider(ground, goober, (ground) => {
+		this.physics.add.collider(ground, wolfie, (ground) => {
 			groundY = ground.y;
 		});
 		//PROJECTILES
@@ -147,37 +167,38 @@ export default class GameScene extends Phaser.Scene {
 		const speed = 3;
 		const { width } = this.scale;
 
-		if (goober.x > width * 0.5) {
-			cam.startFollow(goober);
+		if (wolfie.x > width * 0.5) {
+			cam.startFollow(wolfie);
 		}
 
 		if (cursors.left.isDown) {
 			facingForward = false;
-			goober.flipX = true;
-			goober.setVelocityX(-200);
-			goober.anims.play('move', true);
+			wolfie.flipX = false;
+			wolfie.setVelocityX(-200);
+			wolfie.anims.play('run', true);
 			cam.scrollX -= speed;
 		} else if (cursors.right.isDown) {
 			facingForward = true;
-			goober.flipX = false;
-			goober.setVelocityX(200);
-			goober.anims.play('move', true);
+			wolfie.flipX = true;
+			wolfie.setVelocityX(200);
+			wolfie.anims.play('run', true);
 		} else {
-			goober.setVelocityX(0);
-			goober.anims.play('move', false);
+			wolfie.setVelocityX(0);
+			wolfie.anims.play('run', false);
 		}
 
 		if (
 			Phaser.Input.Keyboard.JustDown(cursors.up) &&
-			goober.y === groundY
+			wolfie.y === groundY
 		) {
-			goober.setVelocityY(-200);
-			goober.anims.play('move', false);
+			wolfie.setVelocityY(-200);
+			wolfie.anims.play('jump', true);
 		}
 
 		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-			this.lasers.fireLaser(goober.x, goober.y);
+			this.lasers.fireLaser(wolfie.x, wolfie.y);
 			this.lasers.playAnimation('waveform');
+			wolfie.anims.play('jump', true);
 		}
 	}
 }

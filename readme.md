@@ -114,5 +114,9 @@ Change 8000 to whatever you want.
 
 ## Useful Links
 
+[Phaser Template](https://github.com/ourcade/phaser3-vite-template)
+[Spritesheet tool](https://www.leshylabs.com/apps/sstool/)
 [Working with spritesheets](https://www.youtube.com/watch?v=ElAmJj8Tfo8)
 [Working with parallax](https://www.youtube.com/watch?v=GwGzFczdpkg&t=1739s)
+[Shooting a groupt of sprites](https://labs.phaser.io/edit.html?src=src/physics/arcade/bullets%20group.js&v=3.55.2)
+[Another tutorial about shooting groups of animations](https://www.codecaptain.io/blog/game-development/shooting-bullets-phaser-3-using-arcade-physics-groups/696)
