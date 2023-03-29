@@ -31,17 +31,17 @@ export default class GameScene extends Phaser.Scene {
 	preload() {
 		// BACKGROUND IMAGES
 		const allBackgrounds = {
-			grass_ground: '/assets/backgroundLayers/Layer_0001_8.png',
-			tree_tops: '/assets/backgroundLayers/Layer_0002_7.png',
-			secondary_tree_bottoms: '/assets/backgroundLayers/Layer_0005_5.png',
-			tree_bottoms: '/assets/backgroundLayers/Layer_0003_6.png',
-			primary_shrubery: '/assets/backgroundLayers/Layer_0006_4.png',
-			secondary_lights: '/assets/backgroundLayers/Layer_0007_Lights.png',
-			background_shrubbery: '/assets/backgroundLayers/Layer_0009_2.png',
+			grass_ground: 'assets/backgroundLayers/Layer_0001_8.png',
+			tree_tops: 'assets/backgroundLayers/Layer_0002_7.png',
+			secondary_tree_bottoms: 'assets/backgroundLayers/Layer_0005_5.png',
+			tree_bottoms: 'assets/backgroundLayers/Layer_0003_6.png',
+			primary_shrubery: 'assets/backgroundLayers/Layer_0006_4.png',
+			secondary_lights: 'assets/backgroundLayers/Layer_0007_Lights.png',
+			background_shrubbery: 'assets/backgroundLayers/Layer_0009_2.png',
 			background_shrubbery_shadow:
-				'/assets/backgroundLayers/Layer_0008_3.png',
-			lights_forefront: '/assets/backgroundLayers/Layer_0004_Lights.png',
-			shadow_ground: '/assets/backgroundLayers/Layer_0000_9.png',
+				'assets/backgroundLayers/Layer_0008_3.png',
+			lights_forefront: 'assets/backgroundLayers/Layer_0004_Lights.png',
+			shadow_ground: 'assets/backgroundLayers/Layer_0000_9.png',
 		};
 		for (const [key, value] of Object.entries(allBackgrounds)) {
 			this.load.image(key, value);
@@ -50,21 +50,21 @@ export default class GameScene extends Phaser.Scene {
 		// SPRITES
 		this.load.atlas(
 			'wolfie',
-			'/assets/sprites/wolfieSpritesheet.png',
-			'/assets/sprites/wolfieSpritesheet.json'
+			'assets/sprites/wolfieSpritesheet.png',
+			'assets/sprites/wolfieSpritesheet.json'
 		);
 		//PROJECTILES
 		this.load.atlas(
 			'unchargedLaser',
-			'/assets/sprites/projectiles/unchargedLaser.png',
-			'/assets/sprites/projectiles/unchargedLaser.json'
+			'assets/sprites/projectiles/unchargedLaser.png',
+			'assets/sprites/projectiles/unchargedLaser.json'
 		);
 		//PLATFORMS AND OBSTACLES
 		this.load.image(
 			'mossyObstacles',
-			'/assets/obstacles/mossyPlatformsSmall.png'
+			'assets/obstacles/mossyPlatformsSmall.png'
 		);
-		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/game.json');
+		this.load.tilemapTiledJSON('tilemap', 'assets/obstacles/game.json');
 	}
 
 	create() {
