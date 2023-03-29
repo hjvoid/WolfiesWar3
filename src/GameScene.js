@@ -44,15 +44,14 @@ export default class GameScene extends Phaser.Scene {
 			shadow_ground: '/assets/backgroundLayers/Layer_0000_9.png',
 		};
 		for (const [key, value] of Object.entries(allBackgrounds)) {
-			console.log(`${key}: ${value}`);
 			this.load.image(key, value);
 		}
 
 		// SPRITES
 		this.load.atlas(
 			'wolfie',
-			'/assets/sprites/wolfie.png',
-			'/assets/sprites/wolfie.json'
+			'/assets/sprites/wolfieSpritesheet.png',
+			'/assets/sprites/wolfieSpritesheet.json'
 		);
 		//PROJECTILES
 		this.load.atlas(
@@ -96,37 +95,30 @@ export default class GameScene extends Phaser.Scene {
 		// SPRITES
 		wolfie = this.physics.add
 			.sprite(100, 200, 'wolfie')
-			.setScale(0.2, 0.2)
+			.setScale(0.12, 0.12)
 			.setBounce(0.3);
 		wolfie.flipX = true;
 
 		this.anims.create({
-			key: 'run',
+			key: 'move',
 			frames: this.anims.generateFrameNames('wolfie', {
-				prefix: 'run',
-				end: 4,
-				zeroPad: 4,
-			}),
-			frameRate: 12,
-			repeat: -1,
-		});
-
-		this.anims.create({
-			key: 'stationary',
-			frames: this.anims.generateFrameNames('wolfie', {
-				prefix: 'stationary',
+				prefix: 'move',
 				end: 3,
 				zeroPad: 4,
 			}),
-			frameRate: 4,
+			frameRate: 8,
 			repeat: -1,
 		});
 
 		this.anims.create({
 			key: 'jump',
-			frames: [{ key: 'wolfie', frame: 0 }],
-			frameRate: 1,
-			repeat: 10,
+			frames: this.anims.generateFrameNames('wolfie', {
+				prefix: 'jump',
+				end: 3,
+				zeroPad: 4,
+			}),
+			frameRate: 10,
+			repeat: 0,
 		});
 
 		// COLLIDERS
@@ -166,39 +158,45 @@ export default class GameScene extends Phaser.Scene {
 		const cam = this.cameras.main;
 		const speed = 3;
 		const { width } = this.scale;
-
+		// CAMERA
 		if (wolfie.x > width * 0.5) {
 			cam.startFollow(wolfie);
 		}
-
-		if (cursors.left.isDown) {
-			facingForward = false;
-			wolfie.flipX = false;
-			wolfie.setVelocityX(-200);
-			wolfie.anims.play('run', true);
-			cam.scrollX -= speed;
-		} else if (cursors.right.isDown) {
-			facingForward = true;
-			wolfie.flipX = true;
-			wolfie.setVelocityX(200);
-			wolfie.anims.play('run', true);
-		} else {
-			wolfie.setVelocityX(0);
-			wolfie.anims.play('run', false);
-		}
-
+		// WOLFIE
 		if (
-			Phaser.Input.Keyboard.JustDown(cursors.up) &&
-			wolfie.y === groundY
+			Math.round(wolfie.y) !== Math.round(groundY) &&
+			!cursors.left.isDown &&
+			!cursors.right.isDown
 		) {
-			wolfie.setVelocityY(-200);
+			wolfie.anims.play('move', false);
 			wolfie.anims.play('jump', true);
-		}
-
-		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-			this.lasers.fireLaser(wolfie.x, wolfie.y);
-			this.lasers.playAnimation('waveform');
-			wolfie.anims.play('jump', true);
+		} else {
+			if (cursors.left.isDown) {
+				facingForward = false;
+				wolfie.flipX = false;
+				wolfie.setVelocityX(-200);
+				wolfie.anims.play('move', true);
+				cam.scrollX -= speed;
+			} else if (cursors.right.isDown) {
+				facingForward = true;
+				wolfie.flipX = true;
+				wolfie.setVelocityX(200);
+				wolfie.anims.play('move', true);
+			} else {
+				wolfie.setVelocityX(0);
+				wolfie.anims.play('move', false);
+			}
+			if (
+				Phaser.Input.Keyboard.JustDown(cursors.up) &&
+				wolfie.y === groundY
+			) {
+				wolfie.setVelocityY(-200);
+			}
+			// LASERS
+			if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
+				this.lasers.fireLaser(wolfie.x, wolfie.y);
+				this.lasers.playAnimation('waveform');
+			}
 		}
 	}
 }
