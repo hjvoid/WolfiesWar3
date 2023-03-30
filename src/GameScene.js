@@ -55,22 +55,27 @@ export default class GameScene extends Phaser.Scene {
 		);
 		//PROJECTILES
 		this.load.atlas(
-			'unchargedLaser',
-			'/assets/sprites/projectiles/unchargedLaser.png',
-			'/assets/sprites/projectiles/unchargedLaser.json'
+			'redPulse',
+			'/assets/sprites/projectiles/redPulse.png',
+			'/assets/sprites/projectiles/redPulse.json'
 		);
 		//PLATFORMS AND OBSTACLES
 		this.load.image(
-			'mossyObstacles',
-			'/assets/obstacles/mossyPlatformsSmall.png'
+			'voodooForestOG',
+			'/assets/obstacles/voodooForestOG.png'
 		);
-		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/game.json');
+		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/game2.json');
 	}
 
 	create() {
 		// SCENE CONSTANTS
 		const { width, height } = this.scale;
-
+		this.physics.world.setBounds(
+			0,
+			0,
+			this.scale.width * 3,
+			this.scale.height
+		);
 		// BACKGROUND LAYERS
 		createAlignedParallax(this, 3, 'background_shrubbery_shadow', 0.3);
 		createAlignedParallax(this, 3, 'background_shrubbery', 0.4);
@@ -85,18 +90,16 @@ export default class GameScene extends Phaser.Scene {
 
 		// OBSTACLES AND BACKGROUND
 		const map = this.make.tilemap({ key: 'tilemap' });
-		const tileset = map.addTilesetImage(
-			'mossyPlatformsSmall',
-			'mossyObstacles'
-		);
+		const tileset = map.addTilesetImage('voodooForestOG', 'voodooForestOG');
 		ground = map.createLayer('ground', tileset);
 		ground.setCollisionByProperty({ collides: true });
 
 		// SPRITES
 		wolfie = this.physics.add
-			.sprite(100, 200, 'wolfie')
+			.sprite(125, 200, 'wolfie')
 			.setScale(0.12, 0.12)
-			.setBounce(0.3);
+			.setBounce(0.3)
+			.setCollideWorldBounds(true);
 		wolfie.flipX = true;
 
 		this.anims.create({
@@ -135,11 +138,11 @@ export default class GameScene extends Phaser.Scene {
 
 		// create a new animation
 		var config = {
-			key: 'waveform',
-			frames: this.anims.generateFrameNames('unchargedLaser', {
-				prefix: 'waveform',
+			key: 'redPulse',
+			frames: this.anims.generateFrameNames('redPulse', {
+				prefix: 'redPulse',
 				end: 3,
-				zeroPad: 3,
+				zeroPad: 4,
 			}),
 			repeat: -1,
 		};
@@ -194,8 +197,8 @@ export default class GameScene extends Phaser.Scene {
 			}
 			// LASERS
 			if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-				this.lasers.fireLaser(wolfie.x, wolfie.y);
-				this.lasers.playAnimation('waveform');
+				this.lasers.fireLaser(wolfie.x - 10, wolfie.y);
+				this.lasers.playAnimation('redPulse');
 			}
 		}
 	}
