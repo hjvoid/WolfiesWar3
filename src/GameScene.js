@@ -31,17 +31,17 @@ export default class GameScene extends Phaser.Scene {
 	preload() {
 		// BACKGROUND IMAGES
 		const allBackgrounds = {
-			grass_ground: '/assets/backgroundLayers/Layer_0001_8.png',
-			tree_tops: '/assets/backgroundLayers/Layer_0002_7.png',
-			secondary_tree_bottoms: '/assets/backgroundLayers/Layer_0005_5.png',
-			tree_bottoms: '/assets/backgroundLayers/Layer_0003_6.png',
-			primary_shrubery: '/assets/backgroundLayers/Layer_0006_4.png',
-			secondary_lights: '/assets/backgroundLayers/Layer_0007_Lights.png',
-			background_shrubbery: '/assets/backgroundLayers/Layer_0009_2.png',
-			background_shrubbery_shadow:
-				'/assets/backgroundLayers/Layer_0008_3.png',
-			lights_forefront: '/assets/backgroundLayers/Layer_0004_Lights.png',
-			shadow_ground: '/assets/backgroundLayers/Layer_0000_9.png',
+			1: '/assets/backgroundLayers/hokusaiForest1.png',
+			2: '/assets/backgroundLayers/hokusaiForest2.png',
+			3: '/assets/backgroundLayers/hokusaiForest3.png',
+			4: '/assets/backgroundLayers/hokusaiForest4.png',
+			5: '/assets/backgroundLayers/hokusaiForest5.png',
+			6: '/assets/backgroundLayers/hokusaiForest6.png',
+			7: '/assets/backgroundLayers/hokusaiForest7.png',
+			8: '/assets/backgroundLayers/hokusaiForest8.png',
+			9: '/assets/backgroundLayers/hokusaiForest9.png',
+			10: '/assets/backgroundLayers/hokusaiForest10.png',
+			11: '/assets/backgroundLayers/hokusaiForest11.png',
 		};
 		for (const [key, value] of Object.entries(allBackgrounds)) {
 			this.load.image(key, value);
@@ -77,16 +77,17 @@ export default class GameScene extends Phaser.Scene {
 			this.scale.height
 		);
 		// BACKGROUND LAYERS
-		createAlignedParallax(this, 3, 'background_shrubbery_shadow', 0.3);
-		createAlignedParallax(this, 3, 'background_shrubbery', 0.4);
-		createAlignedParallax(this, 3, 'secondary_lights', 0.5);
-		createAlignedParallax(this, 3, 'primary_shrubery', 0.6);
-		createAlignedParallax(this, 3, 'secondary_tree_bottoms', 0.7);
-		createAlignedParallax(this, 3, 'tree_tops', 0.9);
-		createAlignedParallax(this, 3, 'tree_bottoms', 0.9);
-		createAlignedParallax(this, 3, 'lights_forefront', 0.9);
-		createAlignedParallax(this, 3, 'grass_ground', 0.9);
-		createAlignedParallax(this, 3, 'shadow_ground', 0.9);
+		createAlignedParallax(this, 1, '1', 0.3);
+		createAlignedParallax(this, 1, '2', 0.4);
+		createAlignedParallax(this, 1, '3', 0.5);
+		createAlignedParallax(this, 1, '4', 0.6);
+		createAlignedParallax(this, 1, '5', 0.7);
+		createAlignedParallax(this, 1, '6', 0.7);
+		createAlignedParallax(this, 1, '7', 0.7);
+		createAlignedParallax(this, 1, '8', 0.7);
+		createAlignedParallax(this, 1, '9', 0.9);
+		createAlignedParallax(this, 1, '10', 0.9);
+		createAlignedParallax(this, 1, '11', 1.2);
 
 		// OBSTACLES AND BACKGROUND
 		const map = this.make.tilemap({ key: 'tilemap' });
