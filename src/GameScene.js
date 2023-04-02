@@ -31,17 +31,18 @@ export default class GameScene extends Phaser.Scene {
 	preload() {
 		// BACKGROUND IMAGES
 		const allBackgrounds = {
-			1: '/assets/backgroundLayers/hokusaiForest1.png',
-			2: '/assets/backgroundLayers/hokusaiForest2.png',
-			3: '/assets/backgroundLayers/hokusaiForest3.png',
-			4: '/assets/backgroundLayers/hokusaiForest4.png',
-			5: '/assets/backgroundLayers/hokusaiForest5.png',
-			6: '/assets/backgroundLayers/hokusaiForest6.png',
-			7: '/assets/backgroundLayers/hokusaiForest7.png',
-			8: '/assets/backgroundLayers/hokusaiForest8.png',
-			9: '/assets/backgroundLayers/hokusaiForest9.png',
-			10: '/assets/backgroundLayers/hokusaiForest10.png',
-			11: '/assets/backgroundLayers/hokusaiForest11.png',
+			grass_ground: 'assets/backgroundLayers/Layer_0001_8.png',
+			tree_tops: 'assets/backgroundLayers/Layer_0002_7.png',
+			secondary_tree_bottoms: 'assets/backgroundLayers/Layer_0005_5.png',
+			tree_bottoms: 'assets/backgroundLayers/Layer_0003_6.png',
+			primary_shrubery: 'assets/backgroundLayers/Layer_0006_4.png',
+			secondary_lights: 'assets/backgroundLayers/Layer_0007_Lights.png',
+			background_shrubbery: 'assets/backgroundLayers/Layer_0009_2.png',
+			background_shrubbery_shadow:
+				'assets/backgroundLayers/Layer_0008_3.png',
+			lights_forefront: 'assets/backgroundLayers/Layer_0004_Lights.png',
+			shadow_ground: 'assets/backgroundLayers/Layer_0000_9.png',
+
 		};
 		for (const [key, value] of Object.entries(allBackgrounds)) {
 			this.load.image(key, value);
@@ -50,8 +51,8 @@ export default class GameScene extends Phaser.Scene {
 		// SPRITES
 		this.load.atlas(
 			'wolfie',
-			'/assets/sprites/wolfieSpritesheet.png',
-			'/assets/sprites/wolfieSpritesheet.json'
+			'assets/sprites/wolfieSpritesheet.png',
+			'assets/sprites/wolfieSpritesheet.json'
 		);
 		//PROJECTILES
 		this.load.atlas(
