@@ -72,7 +72,7 @@ export default class GameScene extends Phaser.Scene {
 			'hokusaiAssetsSmall',
 			'assets/obstacles/hokusaiAssetsSmallLightAndBright.png'
 		);
-		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/hokusai.json');
+		this.load.tilemapTiledJSON('tilemap', 'assets/obstacles/hokusai.json');
 	}
 
 	create() {
