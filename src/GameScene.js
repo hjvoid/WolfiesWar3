@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 import { Lasers } from './Lasers';
+import GameOverScene from './GameOver';
 
 export let wolfie;
 let cursors;
 let ground;
 let groundY;
 let evilWalker;
-let biscuits;
 let scoreText;
 let energyBar;
 let wolfieIsHurt = false;
@@ -29,6 +29,11 @@ const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 			.setScrollFactor(scrollFactor);
 		x += m.width;
 	}
+};
+
+const gameOver = (scene) => {
+	scene.pause(); // Pause the main game scene
+	scene.launch('GameOverScene'); // Launch the game over scene
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -98,6 +103,8 @@ export default class GameScene extends Phaser.Scene {
 			this.scale.width * 3,
 			this.scale.height
 		);
+		this.scene.add('GameOverScene', GameOverScene);
+
 		// BACKGROUND LAYERS
 		createAlignedParallax(this, 1, '1', 0.3);
 		createAlignedParallax(this, 1, '2', 0.4);
@@ -120,7 +127,7 @@ export default class GameScene extends Phaser.Scene {
 
 		ground = map.createLayer('ground', tileset);
 		ground.setCollisionByProperty({ collides: true });
-
+		map.createLayer('obstacles', tileset);
 		// WOLFIE
 		wolfie = this.physics.add
 			.sprite(130, 200, 'wolfie')
@@ -128,12 +135,13 @@ export default class GameScene extends Phaser.Scene {
 			.setBounce(0.3)
 			.setCollideWorldBounds(true);
 		wolfie.flipX = true;
+		wolfie.body.bounce.set(0.3);
 
 		//EVILWALKER
 		evilWalker = this.physics.add
 			.sprite(270, 150, 'evilWalker')
 			.setScale(0.12, 0.12)
-			// .setBounce(0.3)
+			.setBounce(0.3)
 			.setCollideWorldBounds(true)
 			.setImmovable(true);
 
@@ -207,10 +215,17 @@ export default class GameScene extends Phaser.Scene {
 			groundY = ground.y;
 		});
 		// Wolfie and Walker
-		this.physics.add.collider(wolfie, evilWalker, () => {
-			wolfieEnergy -= 50;
-			wolfieIsHurt = true;
-		});
+		this.physics.add.collider(
+			wolfie,
+			evilWalker,
+			() => {
+				if (wolfieEnergy > 0) {
+					wolfieIsHurt = true;
+				}
+			},
+			null,
+			this
+		).immovable = true;
 
 		//PROJECTILES
 		this.lasers = new Lasers(this);
@@ -235,22 +250,38 @@ export default class GameScene extends Phaser.Scene {
 		// OBJECTS LAYER
 		const objectsLayer = map.getObjectLayer('objects');
 		objectsLayer.objects.forEach((layer) => {
-			const { x = 0, y = 0, name } = layer;
+			const { x = 0, y = 0, name, width = 0, height = 0 } = layer;
 			switch (name) {
 				case 'wolfieBiscuit': {
-					biscuits = this.physics.add.sprite(x, y, 'dogBiscuit');
-					biscuits.setScale(0.2, 0.2);
-					biscuits.body.setAllowGravity(false);
-					this.physics.add.collider(wolfie, biscuits, () => {
-						biscuits.anims.stop('rotate');
+					let biscuit = this.physics.add.sprite(x, y, 'dogBiscuit');
+					biscuit.setScale(0.2, 0.2);
+					biscuit.body.setAllowGravity(false);
+					biscuit.anims.play('rotate', true);
+					this.physics.add.collider(wolfie, biscuit, () => {
+						// biscuit.anims.stop('rotate', true);
 						points += 5;
-						biscuits.destroy();
+						biscuit.destroy();
 					});
+					break;
+				}
+				case 'spikes': {
+					const rect = this.add.rectangle(
+						x + width * 0.5,
+						y + height * 0.5,
+						width,
+						height
+					);
+					// add the rectangle to the Arcade physics system
+					this.physics.add.existing(rect, true);
+					rect.setDepth(1);
+					// rect.body.isSensor = true;
+					this.physics.add.collider(wolfie, rect, () => {
+						console.log(rect.body.gameObject);
+					});
+					break;
 				}
 			}
 		});
-
-		biscuits.anims.play('rotate', true);
 
 		// KEYBOARD CONTROLLER INITIALISE
 		cursors = this.input.keyboard.createCursorKeys();
@@ -274,9 +305,15 @@ export default class GameScene extends Phaser.Scene {
 	update() {
 		const cam = this.cameras.main;
 		const speed = 3;
-		const { width } = this.scale;
+		const { width, height } = this.scale;
 		scoreText.x = cam.scrollX + 10;
+		if (wolfieEnergy <= 0 || wolfie.y + 29 > height) {
+			gameOver(this.scene);
+		}
+
+		// Wolfie Health
 		energyBar.x = cam.scrollX + 10;
+
 		// CAMERA
 		if (wolfie.x > width * 0.5) {
 			cam.startFollow(wolfie);
@@ -319,24 +356,28 @@ export default class GameScene extends Phaser.Scene {
 			wolfie.setVelocityX(0);
 			wolfie.anims.play('move', false);
 		}
-		if (cursors.up.isDown) {
+		if (cursors.up.isDown && !wolfieIsHurt) {
 			wolfie.anims.play('jump', true);
 			if (Math.round(wolfie.y) === Math.round(groundY)) {
 				wolfie.setVelocityY(-200);
 			}
 		}
 		if (wolfieIsHurt) {
+			// if (wolfieEnergy <= 0) {
+			// 	// Pause the current scene
+			// 	this.scene.pause();
+
+			// 	// Start the Game Over scene
+			// 	this.scene.start('GameOverScene');
+			// }
 			wolfie.anims.play('hurt', true);
-			// Pause wolfie in the air
-			wolfie.body.enable = false;
-			// Decrease energy bar
+			wolfieIsHurt = false;
+			// this.time.delayedCall(2000, () => {
+			wolfieEnergy -= 20;
 			energyBar.clear();
 			energyBar.fillStyle(0xff0000, 1);
 			energyBar.fillRect(5, 50, wolfieEnergy, 20);
-			this.time.delayedCall(2000, () => {
-				wolfie.body.enable = true;
-				wolfieIsHurt = false;
-			});
+			// });
 		}
 		// LASERS
 		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
