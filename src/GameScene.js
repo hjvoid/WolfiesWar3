@@ -12,6 +12,7 @@ let energyBar;
 let wolfieIsHurt = false;
 let points = 0;
 let wolfieEnergy = 200;
+let gate;
 export let facingForward = true;
 /**
  * @param {Phaser.Scene} scene
@@ -32,8 +33,36 @@ const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 };
 
 const gameOver = (scene) => {
-	scene.pause(); // Pause the main game scene
-	scene.launch('GameOverScene'); // Launch the game over scene
+	scene.pause();
+	scene.launch('GameOverScene');
+};
+
+const flashRedWhenHurt = (character, scene) => {
+	const startColor = Phaser.Display.Color.ValueToColor(0xffffff);
+	const endColor = Phaser.Display.Color.ValueToColor(0xff0000);
+	scene.scene.tweens.addCounter({
+		from: 0,
+		to: 100,
+		duration: 100,
+		repeat: 2,
+		yoyo: true,
+		ease: Phaser.Math.Easing.Sine.InOut,
+		onUpdate: (tween) => {
+			const value = tween.getValue();
+			const colorObject = Phaser.Display.Color.Interpolate.ColorWithColor(
+				startColor,
+				endColor,
+				100,
+				value
+			);
+			const color = Phaser.Display.Color.GetColor(
+				colorObject.r,
+				colorObject.g,
+				colorObject.b
+			);
+			character.setTint(color);
+		},
+	});
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -91,6 +120,7 @@ export default class GameScene extends Phaser.Scene {
 			'hokusaiAssetsSmall',
 			'/assets/obstacles/hokusaiAssetsSmallLightAndBright.png'
 		);
+		this.load.image('gate', '/assets/obstacles/level_gate1.png');
 		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/hokusai.json');
 	}
 
@@ -128,6 +158,23 @@ export default class GameScene extends Phaser.Scene {
 		ground = map.createLayer('ground', tileset);
 		ground.setCollisionByProperty({ collides: true });
 		map.createLayer('obstacles', tileset);
+
+		//EVILWALKER
+		evilWalker = this.physics.add
+			.sprite(270, 150, 'evilWalker')
+			.setScale(0.12, 0.12)
+			.setBounce(0.9)
+			.setCollideWorldBounds(true)
+			.setImmovable(true);
+
+		//END OF LEVEL GATE
+		gate = this.physics.add
+			.sprite(width * 3 - 70, 480, 'gate')
+			.setScale(0.15, 0.15)
+			.setCollideWorldBounds(true)
+			.setImmovable(true);
+		gate.body.allowGravity = false;
+
 		// WOLFIE
 		wolfie = this.physics.add
 			.sprite(130, 200, 'wolfie')
@@ -135,15 +182,6 @@ export default class GameScene extends Phaser.Scene {
 			.setBounce(0.3)
 			.setCollideWorldBounds(true);
 		wolfie.flipX = true;
-		wolfie.body.bounce.set(0.3);
-
-		//EVILWALKER
-		evilWalker = this.physics.add
-			.sprite(270, 150, 'evilWalker')
-			.setScale(0.12, 0.12)
-			.setBounce(0.3)
-			.setCollideWorldBounds(true)
-			.setImmovable(true);
 
 		// WOLFIE ANIMS
 		this.anims.create({
@@ -215,17 +253,36 @@ export default class GameScene extends Phaser.Scene {
 			groundY = ground.y;
 		});
 		// Wolfie and Walker
-		this.physics.add.collider(
-			wolfie,
-			evilWalker,
-			() => {
-				if (wolfieEnergy > 0) {
-					wolfieIsHurt = true;
-				}
-			},
-			null,
-			this
-		).immovable = true;
+		this.physics.add.collider(wolfie, evilWalker, () => {
+			this.physics.world.separate(wolfie, evilWalker);
+			wolfie.setVelocityY(-200);
+			flashRedWhenHurt(wolfie, this.scene);
+			if (wolfieEnergy > 0) {
+				wolfieIsHurt = true;
+			}
+			if (wolfie.x > evilWalker.x) {
+				this.tweens.add({
+					targets: wolfie,
+					x: wolfie.x + 50,
+					ease: 'Power1',
+					duration: 500,
+					onComplete: function () {
+						wolfieEnergy -= 20;
+					},
+				});
+			}
+			if (wolfie.x < evilWalker.x) {
+				this.tweens.add({
+					targets: wolfie,
+					x: wolfie.x - 50,
+					ease: 'Power1',
+					duration: 500,
+					onComplete: function () {
+						wolfieEnergy -= 20;
+					},
+				});
+			}
+		});
 
 		//PROJECTILES
 		this.lasers = new Lasers(this);
@@ -273,10 +330,12 @@ export default class GameScene extends Phaser.Scene {
 					);
 					// add the rectangle to the Arcade physics system
 					this.physics.add.existing(rect, true);
-					rect.setDepth(1);
-					// rect.body.isSensor = true;
 					this.physics.add.collider(wolfie, rect, () => {
-						console.log(rect.body.gameObject);
+						wolfie.setVelocityY(-200);
+						flashRedWhenHurt(wolfie, this.scene);
+						if (wolfieEnergy > 0) {
+							wolfieIsHurt = true;
+						}
 					});
 					break;
 				}
@@ -307,7 +366,12 @@ export default class GameScene extends Phaser.Scene {
 		const speed = 3;
 		const { width, height } = this.scale;
 		scoreText.x = cam.scrollX + 10;
+
 		if (wolfieEnergy <= 0 || wolfie.y + 29 > height) {
+			gameOver(this.scene);
+		}
+
+		if (wolfie.x >= gate.x - 20 && wolfie.y >= gate.y + 20) {
 			gameOver(this.scene);
 		}
 
@@ -341,13 +405,14 @@ export default class GameScene extends Phaser.Scene {
 			evilWalker.anims.play('walk', true).setVelocityX(50);
 		}
 
-		if (cursors.left.isDown) {
+		// WOLF CONTROLLERS
+		if (cursors.left.isDown && !wolfieIsHurt) {
 			facingForward = false;
 			wolfie.flipX = false;
 			wolfie.setVelocityX(-200);
 			wolfie.anims.play('move', true);
 			cam.scrollX -= speed;
-		} else if (cursors.right.isDown) {
+		} else if (cursors.right.isDown && !wolfieIsHurt) {
 			facingForward = true;
 			wolfie.flipX = true;
 			wolfie.setVelocityX(200);
@@ -363,21 +428,10 @@ export default class GameScene extends Phaser.Scene {
 			}
 		}
 		if (wolfieIsHurt) {
-			// if (wolfieEnergy <= 0) {
-			// 	// Pause the current scene
-			// 	this.scene.pause();
-
-			// 	// Start the Game Over scene
-			// 	this.scene.start('GameOverScene');
-			// }
-			wolfie.anims.play('hurt', true);
-			wolfieIsHurt = false;
-			// this.time.delayedCall(2000, () => {
-			wolfieEnergy -= 20;
 			energyBar.clear();
 			energyBar.fillStyle(0xff0000, 1);
 			energyBar.fillRect(5, 50, wolfieEnergy, 20);
-			// });
+			wolfieIsHurt = false;
 		}
 		// LASERS
 		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
