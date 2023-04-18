@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import GameScene from './GameScene';
+import GameOverScene from './GameOverScene';
 
 const config = {
 	type: Phaser.AUTO,
@@ -14,7 +15,7 @@ const config = {
 			debugBodyColor: 0x00ff00, // set the debug color to green
 		},
 	},
-	scene: [GameScene],
+	scene: [GameScene, GameOverScene],
 };
 
 export default new Phaser.Game(config);

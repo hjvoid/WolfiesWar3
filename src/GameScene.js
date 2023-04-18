@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { Lasers } from './Lasers';
-import GameOverScene from './GameOver';
+// import GameOverScene from './GameOverScene';
 
 export let wolfie;
 let cursors;
@@ -34,7 +34,7 @@ const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 
 const gameOver = (scene) => {
 	scene.pause();
-	scene.launch('GameOverScene');
+	scene.launch('game-over-scene');
 };
 
 const flashRedWhenHurt = (character, scene) => {
@@ -67,7 +67,7 @@ const flashRedWhenHurt = (character, scene) => {
 
 export default class GameScene extends Phaser.Scene {
 	constructor() {
-		super('game-scene');
+		super({ key: 'game-scene' });
 	}
 	preload() {
 		// BACKGROUND IMAGES
@@ -133,7 +133,7 @@ export default class GameScene extends Phaser.Scene {
 			this.scale.width * 3,
 			this.scale.height
 		);
-		this.scene.add('GameOverScene', GameOverScene);
+		// this.scene.add('GameOverScene', GameOverScene);
 
 		// BACKGROUND LAYERS
 		createAlignedParallax(this, 1, '1', 0.3);
@@ -334,6 +334,8 @@ export default class GameScene extends Phaser.Scene {
 						wolfie.setVelocityY(-200);
 						flashRedWhenHurt(wolfie, this.scene);
 						if (wolfieEnergy > 0) {
+							console.log('WTF');
+							wolfieEnergy -= 20;
 							wolfieIsHurt = true;
 						}
 					});
