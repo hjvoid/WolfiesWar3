@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { Lasers } from './Lasers';
-// import GameOverScene from './GameOverScene';
 
 export let wolfie;
 let cursors;
@@ -10,7 +9,6 @@ let evilWalker;
 let scoreText;
 let energyBar;
 let wolfieIsHurt = false;
-let points = 0;
 let wolfieEnergy = 200;
 let gate;
 export let facingForward = true;
@@ -105,8 +103,8 @@ export default class GameScene extends Phaser.Scene {
 		// DOG BISCUITS
 		this.load.atlas(
 			'dogBiscuit',
-			'assets/tokens/silverDog.png',
-			'assets/tokens/silverDog.json'
+			'assets/tokens/cookie1.png',
+			'assets/tokens/cookie1.json'
 		);
 
 		//PROJECTILES
@@ -125,8 +123,11 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	create() {
+		this.score = 0;
+
 		// SCENE CONSTANTS
 		const { width, height } = this.scale;
+
 		this.physics.world.setBounds(
 			0,
 			0,
@@ -236,10 +237,10 @@ export default class GameScene extends Phaser.Scene {
 			key: 'rotate',
 			frames: this.anims.generateFrameNames('dogBiscuit', {
 				prefix: 'rotate',
-				end: 10,
+				end: 15,
 				zeroPad: 4,
 			}),
-			frameRate: 10,
+			frameRate: 15,
 			repeat: -1,
 		});
 
@@ -311,12 +312,12 @@ export default class GameScene extends Phaser.Scene {
 			switch (name) {
 				case 'wolfieBiscuit': {
 					let biscuit = this.physics.add.sprite(x, y, 'dogBiscuit');
-					biscuit.setScale(0.2, 0.2);
+					biscuit.setScale(0.18, 0.18);
 					biscuit.body.setAllowGravity(false);
 					biscuit.anims.play('rotate', true);
 					this.physics.add.collider(wolfie, biscuit, () => {
 						// biscuit.anims.stop('rotate', true);
-						points += 5;
+						this.score += 5;
 						biscuit.destroy();
 					});
 					break;
@@ -348,7 +349,9 @@ export default class GameScene extends Phaser.Scene {
 		cursors = this.input.keyboard.createCursorKeys();
 
 		// CAMERAS
-		this.cameras.main.setBounds(0, 0, width * 3, height);
+		this.cameras.main
+			.setBounds(0, 0, width * 3, height)
+			.fadeIn(1000, 0, 0, 0);
 		// SCORE
 		scoreText = this.add.text(10, 10, 'Score: 0', {
 			fontFamily: 'Arial',
@@ -386,7 +389,7 @@ export default class GameScene extends Phaser.Scene {
 		}
 
 		// SCORE
-		scoreText.setText('Score: ' + points);
+		scoreText.setText('Score: ' + this.score);
 
 		// EVILWALKER
 		// Play walk animation if not already playing
