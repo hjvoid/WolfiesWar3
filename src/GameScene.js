@@ -8,9 +8,11 @@ let groundY;
 let evilWalker;
 let scoreText;
 let energyBar;
+let energyBarOverlay;
 let wolfieIsHurt = false;
-let wolfieEnergy = 200;
+let wolfieEnergy;
 let gate;
+
 export let facingForward = true;
 /**
  * @param {Phaser.Scene} scene
@@ -30,9 +32,12 @@ const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 	}
 };
 
-const gameOver = (scene) => {
-	scene.pause();
-	scene.launch('game-over-scene');
+const gameOver = (scene, cam, time) => {
+	cam.fadeOut(1000, 0, 0, 0);
+	time.delayedCall(500, () => {
+		scene.pause();
+		scene.launch('game-over-scene');
+	});
 };
 
 const flashRedWhenHurt = (character, scene) => {
@@ -113,6 +118,13 @@ export default class GameScene extends Phaser.Scene {
 			'/assets/sprites/projectiles/redPulse.png',
 			'/assets/sprites/projectiles/redPulse.json'
 		);
+
+		//ENERGYBAR
+		this.load.image(
+			'energyBarOverlay',
+			'assets/sprites/energyBarOverlay/energyBarOverlay1.png'
+		);
+
 		//PLATFORMS AND OBSTACLES
 		this.load.image(
 			'hokusaiAssetsSmall',
@@ -120,11 +132,18 @@ export default class GameScene extends Phaser.Scene {
 		);
 		this.load.image('gate', '/assets/obstacles/level_gate1.png');
 		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/hokusai.json');
+
+		//HEART
+		this.load.atlas(
+			'heartPulse',
+			'assets/tokens/heartPulse.png',
+			'assets/tokens/heartPulse.json'
+		);
 	}
 
 	create() {
 		this.score = 0;
-
+		wolfieEnergy = 200;
 		// SCENE CONSTANTS
 		const { width, height } = this.scale;
 
@@ -134,7 +153,6 @@ export default class GameScene extends Phaser.Scene {
 			this.scale.width * 3,
 			this.scale.height
 		);
-		// this.scene.add('GameOverScene', GameOverScene);
 
 		// BACKGROUND LAYERS
 		createAlignedParallax(this, 1, '1', 0.3);
@@ -244,6 +262,19 @@ export default class GameScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
+		// HEART ANIMS
+		this.anims.create({
+			key: 'heart',
+			frames: this.anims.generateFrameNames('heartPulse', {
+				prefix: 'pulsing',
+				start: 0,
+				end: 5,
+				zeroPad: 4,
+			}),
+			frameRate: 6,
+			repeat: -1,
+		});
+
 		// COLLIDERS
 		// Wolfie and ground
 		this.physics.add.collider(ground, wolfie, (ground) => {
@@ -322,6 +353,19 @@ export default class GameScene extends Phaser.Scene {
 					});
 					break;
 				}
+				case 'heart': {
+					let heart = this.physics.add.sprite(x, y, 'heartPulse');
+					console.log(heart);
+					heart.setScale(0.12, 0.12);
+					heart.body.setAllowGravity(false);
+					heart.anims.play('heart', true);
+					this.physics.add.collider(wolfie, heart, () => {
+						wolfieEnergy = 200;
+						wolfieIsHurt = true;
+						heart.destroy();
+					});
+					break;
+				}
 				case 'spikes': {
 					const rect = this.add.rectangle(
 						x + width * 0.5,
@@ -329,13 +373,11 @@ export default class GameScene extends Phaser.Scene {
 						width,
 						height
 					);
-					// add the rectangle to the Arcade physics system
 					this.physics.add.existing(rect, true);
 					this.physics.add.collider(wolfie, rect, () => {
 						wolfie.setVelocityY(-200);
 						flashRedWhenHurt(wolfie, this.scene);
 						if (wolfieEnergy > 0) {
-							console.log('WTF');
 							wolfieEnergy -= 20;
 							wolfieIsHurt = true;
 						}
@@ -363,25 +405,34 @@ export default class GameScene extends Phaser.Scene {
 		//ENERGY BAR
 		energyBar = this.add.graphics();
 		energyBar.fillStyle(0xff00, 1);
-		energyBar.fillRect(5, 50, wolfieEnergy, 20);
+		energyBar.fillRect(15, 50, wolfieEnergy, 20);
+
+		energyBarOverlay = this.add
+			.image(0, 25, 'energyBarOverlay')
+			.setOrigin(0)
+			.setDepth(1)
+			.setScale(0.245, 0.34);
 	}
 
 	update() {
 		const cam = this.cameras.main;
+		const time = this.time;
 		const speed = 3;
 		const { width, height } = this.scale;
 		scoreText.x = cam.scrollX + 10;
 
 		if (wolfieEnergy <= 0 || wolfie.y + 29 > height) {
-			gameOver(this.scene);
+			wolfie.setImmovable(true);
+			gameOver(this.scene, cam, time);
 		}
 
 		if (wolfie.x >= gate.x - 20 && wolfie.y >= gate.y + 20) {
-			gameOver(this.scene);
+			gameOver(this.scene, cam, time);
 		}
 
 		// Wolfie Health
 		energyBar.x = cam.scrollX + 10;
+		energyBarOverlay.x = cam.scrollX + 10;
 
 		// CAMERA
 		if (wolfie.x > width * 0.5) {
@@ -434,8 +485,12 @@ export default class GameScene extends Phaser.Scene {
 		}
 		if (wolfieIsHurt) {
 			energyBar.clear();
-			energyBar.fillStyle(0xff0000, 1);
-			energyBar.fillRect(5, 50, wolfieEnergy, 20);
+			wolfieEnergy > 175
+				? energyBar.fillStyle(0xff00, 1)
+				: wolfieEnergy > 75 && wolfieEnergy < 175
+				? energyBar.fillStyle(0xffff00, 1)
+				: energyBar.fillStyle(0xff0000, 1);
+			energyBar.fillRect(15, 50, wolfieEnergy, 20);
 			wolfieIsHurt = false;
 		}
 		// LASERS
