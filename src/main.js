@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import GameScene from './GameScene';
+import GameOverScene from './GameOverScene';
+import StartScreen from './StartScreen';
 
 const config = {
 	type: Phaser.AUTO,
@@ -10,9 +12,11 @@ const config = {
 		default: 'arcade',
 		arcade: {
 			gravity: { y: 300 },
+			debug: true,
+			debugBodyColor: 0x00ff00, // set the debug color to green
 		},
 	},
-	scene: [GameScene],
+	scene: [StartScreen, GameScene, GameOverScene],
 };
 
 export default new Phaser.Game(config);
