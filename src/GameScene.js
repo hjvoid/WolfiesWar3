@@ -75,17 +75,17 @@ export default class GameScene extends Phaser.Scene {
 	preload() {
 		// BACKGROUND IMAGES
 		const allBackgrounds = {
-			1: '/assets/backgroundLayers/hokusaiForest1.png',
-			2: '/assets/backgroundLayers/hokusaiForest2.png',
-			3: '/assets/backgroundLayers/hokusaiForest3.png',
-			4: '/assets/backgroundLayers/hokusaiForest4.png',
-			5: '/assets/backgroundLayers/hokusaiForest5.png',
-			6: '/assets/backgroundLayers/hokusaiForest6.png',
-			7: '/assets/backgroundLayers/hokusaiForest7.png',
-			8: '/assets/backgroundLayers/hokusaiForest8.png',
-			9: '/assets/backgroundLayers/hokusaiForest9.png',
-			10: '/assets/backgroundLayers/hokusaiForest10Light.png',
-			11: '/assets/backgroundLayers/hokusaiForest11.png',
+			1: 'assets/backgroundLayers/hokusaiForest1.png',
+			2: 'assets/backgroundLayers/hokusaiForest2.png',
+			3: 'assets/backgroundLayers/hokusaiForest3.png',
+			4: 'assets/backgroundLayers/hokusaiForest4.png',
+			5: 'assets/backgroundLayers/hokusaiForest5.png',
+			6: 'assets/backgroundLayers/hokusaiForest6.png',
+			7: 'assets/backgroundLayers/hokusaiForest7.png',
+			8: 'assets/backgroundLayers/hokusaiForest8.png',
+			9: 'assets/backgroundLayers/hokusaiForest9.png',
+			10: 'assets/backgroundLayers/hokusaiForest10Light.png',
+			11: 'assets/backgroundLayers/hokusaiForest11.png',
 		};
 		for (const [key, value] of Object.entries(allBackgrounds)) {
 			this.load.image(key, value);
@@ -101,8 +101,8 @@ export default class GameScene extends Phaser.Scene {
 		// EVILWALKER
 		this.load.atlas(
 			'evilWalker',
-			'/assets/sprites/evilWalker.png',
-			'/assets/sprites/evilWalker.json'
+			'assets/sprites/evilWalker.png',
+			'assets/sprites/evilWalker.json'
 		);
 
 		// DOG BISCUITS
@@ -115,8 +115,8 @@ export default class GameScene extends Phaser.Scene {
 		//PROJECTILES
 		this.load.atlas(
 			'redPulse',
-			'/assets/sprites/projectiles/redPulse.png',
-			'/assets/sprites/projectiles/redPulse.json'
+			'assets/sprites/projectiles/redPulse.png',
+			'assets/sprites/projectiles/redPulse.json'
 		);
 
 		//ENERGYBAR
@@ -128,10 +128,11 @@ export default class GameScene extends Phaser.Scene {
 		//PLATFORMS AND OBSTACLES
 		this.load.image(
 			'hokusaiAssetsSmall',
-			'/assets/obstacles/hokusaiAssetsSmallLightAndBright.png'
+			'assets/obstacles/hokusaiAssetsSmallLightAndBright.png'
 		);
-		this.load.image('gate', '/assets/obstacles/level_gate1.png');
-		this.load.tilemapTiledJSON('tilemap', '/assets/obstacles/hokusai.json');
+
+		this.load.image('gate', 'assets/obstacles/level_gate1.png');
+		this.load.tilemapTiledJSON('tilemap', 'assets/obstacles/hokusai.json');
 
 		//HEART
 		this.load.atlas(
@@ -325,7 +326,7 @@ export default class GameScene extends Phaser.Scene {
 		});
 
 		// PROJECTILES ANIMS
-		var projectilesLaser = {
+		const projectilesLaser = {
 			key: 'redPulse',
 			frames: this.anims.generateFrameNames('redPulse', {
 				prefix: 'redPulse',
