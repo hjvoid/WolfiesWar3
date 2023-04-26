@@ -4,7 +4,6 @@ import { Lasers } from './Lasers';
 //need to get rid of all of this and export into classes/functional components...?
 export let wolfie;
 let cursors;
-let ground;
 let groundY;
 let evilWalker;
 let scoreText;
@@ -14,11 +13,18 @@ let wolfieIsHurt = false;
 let wolfieEnergy;
 let darkWalker;
 let gate;
+const MAP_WIDTH = 800;
+const MAP_HEIGHT = 600;
+
+const scale = Math.min(
+	window.innerWidth / MAP_WIDTH,
+	window.innerHeight / MAP_HEIGHT
+);
 
 // TODO
 //Lasers currently only destroy the first instande of darkwalker
 //Scaling does not work with the tilemap and associated layers
-//The code also looks like crap and needs a clean up...:-(
+//The code also looks like crap and needs a clean up...:-()
 
 export let facingForward = true;
 /**
@@ -184,38 +190,45 @@ export default class GameScene extends Phaser.Scene {
 		createAlignedParallax(this, 1, '10', 0.9);
 		createAlignedParallax(this, 1, '11', 1.2);
 
-		// OBSTACLES AND BACKGROUND
+		// TILEMAP
 		const map = this.make.tilemap({ key: 'tilemap' });
 		const tileset = map.addTilesetImage(
 			'hokusaiAssetsSmall',
 			'hokusaiAssetsSmall'
 		);
-
-		ground = map.createLayer('ground', tileset);
+		//LAYERS
+		const ground = map.createLayer('ground', tileset);
+		// Inhibits unecessary padding. See -> https://newdocs.phaser.io/docs/3.55.2/Phaser.Tilemaps.TilemapLayer#setCullPadding
+		const cullPadding = 0.1; // Set the cull padding to 10% of the layer size
+		ground.setCullPadding(ground.width * cullPadding);
+		const obstacles = map.createLayer('obstacles', tileset);
+		//SCALE LAYERS
+		ground.setScale(scale);
+		obstacles.setScale(scale);
+		//set ground to stop gravity
 		ground.setCollisionByProperty({ collides: true });
-		map.createLayer('obstacles', tileset);
 
 		//EVILWALKER
 		evilWalker = this.physics.add
-			.sprite(270, 150, 'evilWalker')
-			.setScale(0.12, 0.12)
+			.sprite(270 * scale, 150 * scale, 'evilWalker')
+			.setScale(0.12 * scale, 0.12 * scale)
 			//stops the jerky motion of the charater bobbing up and down within th box (see debug mode in main.js)
-			.setOrigin(0.5, 0.5)
+			.setOrigin(0.5 * scale, 0.5 * scale)
 			.setCollideWorldBounds(true)
 			.setImmovable(true);
 
 		//END OF LEVEL GATE
 		gate = this.physics.add
-			.sprite(width * 3 - 70, 480, 'gate')
-			.setScale(0.15, 0.15)
+			.sprite((width * 3 - 70) * scale, 480 * scale, 'gate')
+			.setScale(0.15 * scale, 0.15 * scale)
 			.setCollideWorldBounds(true)
 			.setImmovable(true);
 		gate.body.allowGravity = false;
 
 		// WOLFIE
 		wolfie = this.physics.add
-			.sprite(130, 200, 'wolfie')
-			.setScale(0.23, 0.23)
+			.sprite(130 * scale, 200 * scale, 'wolfie')
+			.setScale(0.23 * scale, 0.23 * scale)
 			.setBounce(0.3)
 			.setCollideWorldBounds(true);
 		wolfie.flipX = true;
@@ -372,20 +385,27 @@ export default class GameScene extends Phaser.Scene {
 			const { x = 0, y = 0, name, width = 0, height = 0 } = layer;
 			switch (name) {
 				case 'wolfieBiscuit': {
-					let biscuit = this.physics.add.sprite(x, y, 'dogBiscuit');
-					biscuit.setScale(0.18, 0.18);
+					let biscuit = this.physics.add.sprite(
+						x * scale,
+						y * scale,
+						'dogBiscuit'
+					);
+					biscuit.setScale(0.18 * scale, 0.18 * scale);
 					biscuit.body.setAllowGravity(false);
 					biscuit.anims.play('rotate', true);
 					this.physics.add.collider(wolfie, biscuit, () => {
-						// biscuit.anims.stop('rotate', true);
 						this.score += 5;
 						biscuit.destroy();
 					});
 					break;
 				}
 				case 'heart': {
-					let heart = this.physics.add.sprite(x, y, 'heartPulse');
-					heart.setScale(0.12, 0.12);
+					let heart = this.physics.add.sprite(
+						x * scale,
+						y * scale,
+						'heartPulse'
+					);
+					heart.setScale(0.12 * scale, 0.12 * scale);
 					heart.body.setAllowGravity(false);
 					heart.anims.play('heart', true);
 					this.physics.add.collider(wolfie, heart, () => {
@@ -396,8 +416,12 @@ export default class GameScene extends Phaser.Scene {
 					break;
 				}
 				case 'darkWalker': {
-					darkWalker = this.physics.add.sprite(x, y, 'hypnoNymph');
-					darkWalker.setScale(0.1, 0.1);
+					darkWalker = this.physics.add.sprite(
+						x * scale,
+						y * scale,
+						'hypnoNymph'
+					);
+					darkWalker.setScale(0.1 * scale, 0.1 * scale);
 					darkWalker.body.setAllowGravity(false).setImmovable(true);
 					darkWalker.anims.play('stationary', true);
 					this.physics.add.collider(wolfie, darkWalker, () => {
@@ -418,8 +442,8 @@ export default class GameScene extends Phaser.Scene {
 				}
 				case 'spikes': {
 					const rect = this.add.rectangle(
-						x + width * 0.5,
-						y + height * 0.5,
+						(x + width * 0.5) * scale,
+						(y + height * 0.5) * scale,
 						width,
 						height
 					);
@@ -497,13 +521,16 @@ export default class GameScene extends Phaser.Scene {
 		if (!evilWalker.anims.isPlaying) {
 			evilWalker.anims.play('walk', true).setVelocityX(50);
 		}
-		if (evilWalker.anims.currentAnim.key === 'walk' && evilWalker.x > 460) {
+		if (
+			evilWalker.anims.currentAnim.key === 'walk' &&
+			evilWalker.x > 460 * scale
+		) {
 			evilWalker.anims.stop();
 			evilWalker.flipX = true;
 			evilWalker.anims.play('walk', true).setVelocityX(-50);
 		} else if (
 			evilWalker.anims.currentAnim.key === 'walk' &&
-			evilWalker.x < 270 &&
+			evilWalker.x < 270 * scale &&
 			evilWalker.flipX === true
 		) {
 			evilWalker.anims.stop();
@@ -530,7 +557,7 @@ export default class GameScene extends Phaser.Scene {
 		if (cursors.up.isDown && !wolfieIsHurt) {
 			wolfie.anims.play('jump', true);
 			if (Math.round(wolfie.y) === Math.round(groundY)) {
-				wolfie.setVelocityY(-200);
+				wolfie.setVelocityY(-200 * scale);
 			}
 		}
 		if (wolfieIsHurt) {
@@ -545,7 +572,7 @@ export default class GameScene extends Phaser.Scene {
 		}
 		// LASERS
 		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-			this.lasers.fireLaser(wolfie.x - 10, wolfie.y);
+			this.lasers.fireLaser((wolfie.x - 10) * scale, wolfie.y);
 			this.lasers.playAnimation('redPulse');
 		}
 	}
