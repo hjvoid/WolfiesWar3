@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Lasers } from './Lasers';
 
+//need to get rid of all of this and export into classes/functional components...?
 export let wolfie;
 let cursors;
 let ground;
@@ -11,7 +12,13 @@ let energyBar;
 let energyBarOverlay;
 let wolfieIsHurt = false;
 let wolfieEnergy;
+let darkWalker;
 let gate;
+
+// TODO
+//Lasers currently only destroy the first instande of darkwalker
+//Scaling does not work with the tilemap and associated layers
+//The code also looks like crap and needs a clean up...:-(
 
 export let facingForward = true;
 /**
@@ -27,6 +34,7 @@ const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 		const m = scene.add
 			.image(x, scene.scale.height, texture)
 			.setOrigin(0, 1)
+			.setDisplaySize(scene.scale.width * 3, scene.scale.height)
 			.setScrollFactor(scrollFactor);
 		x += m.width;
 	}
@@ -105,6 +113,13 @@ export default class GameScene extends Phaser.Scene {
 			'assets/sprites/evilWalker.json'
 		);
 
+		//hypnoNymph
+		this.load.atlas(
+			'hypnoNymph',
+			'/assets/sprites/hypnoNymph.png',
+			'/assets/sprites/hypnoNymph.json'
+		);
+
 		// DOG BISCUITS
 		this.load.atlas(
 			'dogBiscuit',
@@ -145,6 +160,7 @@ export default class GameScene extends Phaser.Scene {
 	create() {
 		this.score = 0;
 		wolfieEnergy = 200;
+
 		// SCENE CONSTANTS
 		const { width, height } = this.scale;
 
@@ -183,7 +199,8 @@ export default class GameScene extends Phaser.Scene {
 		evilWalker = this.physics.add
 			.sprite(270, 150, 'evilWalker')
 			.setScale(0.12, 0.12)
-			.setBounce(0.9)
+			//stops the jerky motion of the charater bobbing up and down within th box (see debug mode in main.js)
+			.setOrigin(0.5, 0.5)
 			.setCollideWorldBounds(true)
 			.setImmovable(true);
 
@@ -251,6 +268,18 @@ export default class GameScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
+		//HYPNONYMPH
+		this.anims.create({
+			key: 'stationary',
+			frames: this.anims.generateFrameNames('hypnoNymph', {
+				prefix: 'stationary',
+				end: 6,
+				zeroPad: 4,
+			}),
+			frameRate: 7,
+			repeat: -1,
+		});
+
 		// BISCUIT ANIMS
 		this.anims.create({
 			key: 'rotate',
@@ -272,7 +301,7 @@ export default class GameScene extends Phaser.Scene {
 				end: 5,
 				zeroPad: 4,
 			}),
-			frameRate: 6,
+			frameRate: 7,
 			repeat: -1,
 		});
 
@@ -356,7 +385,6 @@ export default class GameScene extends Phaser.Scene {
 				}
 				case 'heart': {
 					let heart = this.physics.add.sprite(x, y, 'heartPulse');
-					console.log(heart);
 					heart.setScale(0.12, 0.12);
 					heart.body.setAllowGravity(false);
 					heart.anims.play('heart', true);
@@ -364,6 +392,27 @@ export default class GameScene extends Phaser.Scene {
 						wolfieEnergy = 200;
 						wolfieIsHurt = true;
 						heart.destroy();
+					});
+					break;
+				}
+				case 'darkWalker': {
+					darkWalker = this.physics.add.sprite(x, y, 'hypnoNymph');
+					darkWalker.setScale(0.1, 0.1);
+					darkWalker.body.setAllowGravity(false).setImmovable(true);
+					darkWalker.anims.play('stationary', true);
+					this.physics.add.collider(wolfie, darkWalker, () => {
+						flashRedWhenHurt(wolfie, this.scene);
+						//TODO Add collider reaction here
+						if (wolfieEnergy > 0) {
+							wolfieEnergy -= 20;
+							wolfieIsHurt = true;
+						}
+					});
+					this.lasers.children.iterate((laser) => {
+						this.physics.add.collider(laser, darkWalker, () => {
+							darkWalker.destroy();
+							laser.destroy();
+						});
 					});
 					break;
 				}

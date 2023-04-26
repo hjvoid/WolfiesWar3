@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.0" orientation="orthogonal" renderorder="right-down" width="240" height="60" tilewidth="10" tileheight="10" infinite="0" nextlayerid="4" nextobjectid="30">
+<map version="1.10" tiledversion="1.10.0" orientation="orthogonal" renderorder="right-down" width="240" height="60" tilewidth="10" tileheight="10" infinite="0" nextlayerid="4" nextobjectid="39">
  <editorsettings>
   <export target="hokusai.json" format="json"/>
  </editorsettings>
@@ -104187,5 +104187,6 @@
   <object id="26" name="spikes" x="613.895" y="474.943" width="169.704" height="103.645"/>
   <object id="27" name="spikes" x="824.601" y="430.524" width="47.836" height="170.843"/>
   <object id="29" name="spikes" x="2208.43" y="156.036" width="41.0023" height="54.6697"/>
+  <object id="32" name="darkWalker" x="902.05" y="320.045" width="28.4738" height="29.6128"/>
  </objectgroup>
 </map>
