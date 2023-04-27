@@ -278,10 +278,8 @@ export default class GameScene extends Phaser.Scene {
 
 		//END OF LEVEL GATE
 		const xPositionForGate = 70 * scale;
-		console.log(width * 3 - xPositionForGate);
-		console.log(width);
 		gate = this.physics.add
-			.sprite(width * 3 - 70, 480 * scale, 'gate')
+			.sprite(width * 3 - xPositionForGate, 480 * scale, 'gate')
 			.setScale(0.15 * scale, 0.15 * scale)
 			.setCollideWorldBounds(true)
 			.setImmovable(true);
@@ -358,7 +356,7 @@ export default class GameScene extends Phaser.Scene {
 				end: 6,
 				zeroPad: 4,
 			}),
-			frameRate: 7,
+			frameRate: 6,
 			repeat: -1,
 		});
 
