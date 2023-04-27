@@ -416,14 +416,17 @@ export default class GameScene extends Phaser.Scene {
 					break;
 				}
 				case 'darkWalker': {
+					this.darkWalkers = this.add.group();
 					darkWalker = this.physics.add.sprite(
 						x * scale,
 						y * scale,
 						'hypnoNymph'
 					);
-					darkWalker.setScale(0.1 * scale, 0.1 * scale);
+					darkWalker.setScale(0.08 * scale, 0.08 * scale);
 					darkWalker.body.setAllowGravity(false).setImmovable(true);
 					darkWalker.anims.play('stationary', true);
+					this.darkWalkers.add(darkWalker);
+
 					this.physics.add.collider(wolfie, darkWalker, () => {
 						flashRedWhenHurt(wolfie, this.scene);
 						//TODO Add collider reaction here
@@ -433,10 +436,15 @@ export default class GameScene extends Phaser.Scene {
 						}
 					});
 					this.lasers.children.iterate((laser) => {
-						this.physics.add.collider(laser, darkWalker, () => {
-							darkWalker.destroy();
-							laser.destroy();
-						});
+						this.physics.add.collider(
+							laser,
+							this.darkWalkers,
+							(laser, darkWalker) => {
+								// console.log(darkWalker);
+								darkWalker.destroy();
+								laser.destroy();
+							}
+						);
 					});
 					break;
 				}
@@ -572,7 +580,7 @@ export default class GameScene extends Phaser.Scene {
 		}
 		// LASERS
 		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-			this.lasers.fireLaser((wolfie.x - 10) * scale, wolfie.y);
+			this.lasers.fireLaser(wolfie.x - 10, wolfie.y);
 			this.lasers.playAnimation('redPulse');
 		}
 	}
