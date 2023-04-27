@@ -54,6 +54,37 @@ const gameOver = (scene, cam, time) => {
 	});
 };
 
+const createBounceOnCollision = (character, adversary, thisObject) => {
+	character.setVelocityY(-200);
+	if (character.x > adversary.x) {
+		thisObject.tweens.add({
+			targets: character,
+			x: character.x + 50,
+			ease: 'Power1',
+			duration: 500,
+			onComplete: function () {
+				if (character === wolfie) {
+					wolfieEnergy -= 20;
+				}
+			},
+		});
+	}
+	if (character.x < adversary.x) {
+		thisObject.tweens.add({
+			targets: character,
+			x: character.x - 50,
+			ease: 'Power1',
+			duration: 500,
+			onComplete: function () {
+				if (character === wolfie && wolfieEnergy > 0) {
+					wolfieEnergy -= 20;
+					wolfieIsHurt = true;
+				}
+			},
+		});
+	}
+};
+
 const flashRedWhenHurt = (character, scene) => {
 	const startColor = Phaser.Display.Color.ValueToColor(0xffffff);
 	const endColor = Phaser.Display.Color.ValueToColor(0xff0000);
@@ -205,6 +236,7 @@ export default class GameScene extends Phaser.Scene {
 		//SCALE LAYERS
 		ground.setScale(scale);
 		obstacles.setScale(scale);
+		obstacles.setCullPadding(ground.width * cullPadding);
 		//set ground to stop gravity
 		ground.setCollisionByProperty({ collides: true });
 
@@ -329,34 +361,11 @@ export default class GameScene extends Phaser.Scene {
 		});
 		// Wolfie and Walker
 		this.physics.add.collider(wolfie, evilWalker, () => {
-			this.physics.world.separate(wolfie, evilWalker);
-			wolfie.setVelocityY(-200);
 			flashRedWhenHurt(wolfie, this.scene);
 			if (wolfieEnergy > 0) {
 				wolfieIsHurt = true;
 			}
-			if (wolfie.x > evilWalker.x) {
-				this.tweens.add({
-					targets: wolfie,
-					x: wolfie.x + 50,
-					ease: 'Power1',
-					duration: 500,
-					onComplete: function () {
-						wolfieEnergy -= 20;
-					},
-				});
-			}
-			if (wolfie.x < evilWalker.x) {
-				this.tweens.add({
-					targets: wolfie,
-					x: wolfie.x - 50,
-					ease: 'Power1',
-					duration: 500,
-					onComplete: function () {
-						wolfieEnergy -= 20;
-					},
-				});
-			}
+			createBounceOnCollision(wolfie, evilWalker, this);
 		});
 
 		//PROJECTILES
@@ -429,18 +438,13 @@ export default class GameScene extends Phaser.Scene {
 
 					this.physics.add.collider(wolfie, darkWalker, () => {
 						flashRedWhenHurt(wolfie, this.scene);
-						//TODO Add collider reaction here
-						if (wolfieEnergy > 0) {
-							wolfieEnergy -= 20;
-							wolfieIsHurt = true;
-						}
+						createBounceOnCollision(wolfie, darkWalker, this);
 					});
 					this.lasers.children.iterate((laser) => {
 						this.physics.add.collider(
 							laser,
 							this.darkWalkers,
 							(laser, darkWalker) => {
-								// console.log(darkWalker);
 								darkWalker.destroy();
 								laser.destroy();
 							}
