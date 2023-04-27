@@ -13,6 +13,8 @@ let wolfieIsHurt = false;
 let wolfieEnergy;
 let darkWalker;
 let gate;
+let floorSpikes;
+let skySpikes;
 const MAP_WIDTH = 800;
 const MAP_HEIGHT = 600;
 
@@ -20,11 +22,6 @@ const scale = Math.min(
 	window.innerWidth / MAP_WIDTH,
 	window.innerHeight / MAP_HEIGHT
 );
-
-// TODO
-//Lasers currently only destroy the first instande of darkwalker
-//Scaling does not work with the tilemap and associated layers
-//The code also looks like crap and needs a clean up...:-()
 
 export let facingForward = true;
 /**
@@ -55,33 +52,62 @@ const gameOver = (scene, cam, time) => {
 };
 
 const createBounceOnCollision = (character, adversary, thisObject) => {
-	character.setVelocityY(-200);
-	if (character.x > adversary.x) {
+	if (adversary === floorSpikes) {
 		thisObject.tweens.add({
 			targets: character,
-			x: character.x + 50,
+			y: character.y - 100,
 			ease: 'Power1',
 			duration: 500,
 			onComplete: function () {
 				if (character === wolfie) {
 					wolfieEnergy -= 20;
+					wolfieIsHurt = true;
 				}
 			},
 		});
-	}
-	if (character.x < adversary.x) {
+	} else if (adversary === skySpikes) {
 		thisObject.tweens.add({
 			targets: character,
-			x: character.x - 50,
+			y: character.y + 100,
 			ease: 'Power1',
-			duration: 500,
+			duration: 400,
 			onComplete: function () {
-				if (character === wolfie && wolfieEnergy > 0) {
+				if (character === wolfie) {
 					wolfieEnergy -= 20;
 					wolfieIsHurt = true;
 				}
 			},
 		});
+	} else {
+		character.setVelocityY(-200);
+		if (character.x > adversary.x) {
+			thisObject.tweens.add({
+				targets: character,
+				x: character.x + 70,
+				ease: 'Power1',
+				duration: 500,
+				onComplete: function () {
+					if (character === wolfie) {
+						wolfieEnergy -= 20;
+						wolfieIsHurt = true;
+					}
+				},
+			});
+		}
+		if (character.x < adversary.x) {
+			thisObject.tweens.add({
+				targets: character,
+				x: character.x - 70,
+				ease: 'Power1',
+				duration: 500,
+				onComplete: function () {
+					if (character === wolfie && wolfieEnergy > 0) {
+						wolfieEnergy -= 20;
+						wolfieIsHurt = true;
+					}
+				},
+			});
+		}
 	}
 };
 
@@ -233,7 +259,8 @@ export default class GameScene extends Phaser.Scene {
 		const cullPadding = 0.1; // Set the cull padding to 10% of the layer size
 		ground.setCullPadding(ground.width * cullPadding);
 		const obstacles = map.createLayer('obstacles', tileset);
-		//SCALE LAYERS
+
+		//scale the layers
 		ground.setScale(scale);
 		obstacles.setScale(scale);
 		obstacles.setCullPadding(ground.width * cullPadding);
@@ -258,12 +285,19 @@ export default class GameScene extends Phaser.Scene {
 		gate.body.allowGravity = false;
 
 		// WOLFIE
+		const wolfiesWorldBounds = new Phaser.Geom.Rectangle(
+			0, // x
+			0, // y
+			width, // width
+			height * scale - 50 // height - 50px (to allow the character to fall through)
+		);
 		wolfie = this.physics.add
 			.sprite(130 * scale, 200 * scale, 'wolfie')
 			.setScale(0.23 * scale, 0.23 * scale)
 			.setBounce(0.3)
 			.setCollideWorldBounds(true);
 		wolfie.flipX = true;
+		wolfie.body.world.setBounds(wolfiesWorldBounds);
 
 		// WOLFIE ANIMS
 		this.anims.create({
@@ -313,7 +347,7 @@ export default class GameScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
-		//HYPNONYMPH
+		//HYPNONYMPH ANIMS
 		this.anims.create({
 			key: 'stationary',
 			frames: this.anims.generateFrameNames('hypnoNymph', {
@@ -453,20 +487,30 @@ export default class GameScene extends Phaser.Scene {
 					break;
 				}
 				case 'spikes': {
-					const rect = this.add.rectangle(
+					floorSpikes = this.add.rectangle(
 						(x + width * 0.5) * scale,
 						(y + height * 0.5) * scale,
 						width,
 						height
 					);
-					this.physics.add.existing(rect, true);
-					this.physics.add.collider(wolfie, rect, () => {
-						wolfie.setVelocityY(-200);
+					this.physics.add.existing(floorSpikes, true);
+					this.physics.add.collider(wolfie, floorSpikes, () => {
 						flashRedWhenHurt(wolfie, this.scene);
-						if (wolfieEnergy > 0) {
-							wolfieEnergy -= 20;
-							wolfieIsHurt = true;
-						}
+						createBounceOnCollision(wolfie, floorSpikes, this);
+					});
+					break;
+				}
+				case 'stalacSpikes': {
+					skySpikes = this.add.rectangle(
+						(x + width * 0.5) * scale,
+						(y + height * 0.5) * scale,
+						width,
+						height
+					);
+					this.physics.add.existing(skySpikes, true);
+					this.physics.add.collider(wolfie, skySpikes, () => {
+						flashRedWhenHurt(wolfie, this.scene);
+						createBounceOnCollision(wolfie, skySpikes, this);
 					});
 					break;
 				}
@@ -506,8 +550,7 @@ export default class GameScene extends Phaser.Scene {
 		const speed = 3;
 		const { width, height } = this.scale;
 		scoreText.x = cam.scrollX + 10;
-
-		if (wolfieEnergy <= 0 || wolfie.y + 29 > height) {
+		if (wolfieEnergy <= 0 || wolfie.y + 29 * scale > height) {
 			wolfie.setImmovable(true);
 			gameOver(this.scene, cam, time);
 		}
