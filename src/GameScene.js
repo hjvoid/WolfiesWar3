@@ -179,8 +179,8 @@ export default class GameScene extends Phaser.Scene {
 		//hypnoNymph
 		this.load.atlas(
 			'hypnoNymph',
-			'/assets/sprites/hypnoNymph.png',
-			'/assets/sprites/hypnoNymph.json'
+			'assets/sprites/hypnoNymph.png',
+			'assets/sprites/hypnoNymph.json'
 		);
 
 		// DOG BISCUITS
