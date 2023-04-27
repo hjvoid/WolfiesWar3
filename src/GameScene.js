@@ -57,7 +57,7 @@ const createBounceOnCollision = (character, adversary, thisObject) => {
 			targets: character,
 			y: character.y - 100,
 			ease: 'Power1',
-			duration: 500,
+			duration: 300,
 			onComplete: function () {
 				if (character === wolfie) {
 					wolfieEnergy -= 20;
@@ -277,8 +277,11 @@ export default class GameScene extends Phaser.Scene {
 			.setImmovable(true);
 
 		//END OF LEVEL GATE
+		const xPositionForGate = 70 * scale;
+		console.log(width * 3 - xPositionForGate);
+		console.log(width);
 		gate = this.physics.add
-			.sprite((width * 3 - 70) * scale, 480 * scale, 'gate')
+			.sprite(width * 3 - 70, 480 * scale, 'gate')
 			.setScale(0.15 * scale, 0.15 * scale)
 			.setCollideWorldBounds(true)
 			.setImmovable(true);
