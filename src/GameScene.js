@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Lasers } from './Lasers';
+import { createAlignedParallax, gameOver, flashRedWhenHurt } from './utils';
 
 //need to get rid of all of this and export into classes/functional components...?
 export let wolfie;
@@ -17,39 +18,13 @@ let floorSpikes;
 let skySpikes;
 const MAP_WIDTH = 800;
 const MAP_HEIGHT = 600;
+export let facingForward = true;
 
 const scale = Math.min(
 	window.innerWidth / MAP_WIDTH,
 	window.innerHeight / MAP_HEIGHT
 );
 
-export let facingForward = true;
-/**
- * @param {Phaser.Scene} scene
- * @param {number} count
- * @param {string} texture
- * @param {number} scrollFactor
- */
-
-const createAlignedParallax = (scene, count, texture, scrollFactor) => {
-	let x = 0;
-	for (let i = 0; i < count; ++i) {
-		const m = scene.add
-			.image(x, scene.scale.height, texture)
-			.setOrigin(0, 1)
-			.setDisplaySize(scene.scale.width * 3, scene.scale.height)
-			.setScrollFactor(scrollFactor);
-		x += m.width;
-	}
-};
-
-const gameOver = (scene, cam, time) => {
-	cam.fadeOut(1000, 0, 0, 0);
-	time.delayedCall(500, () => {
-		scene.pause();
-		scene.launch('game-over-scene');
-	});
-};
 
 const createBounceOnCollision = (character, adversary, thisObject) => {
 	if (adversary === floorSpikes) {
@@ -109,34 +84,6 @@ const createBounceOnCollision = (character, adversary, thisObject) => {
 			});
 		}
 	}
-};
-
-const flashRedWhenHurt = (character, scene) => {
-	const startColor = Phaser.Display.Color.ValueToColor(0xffffff);
-	const endColor = Phaser.Display.Color.ValueToColor(0xff0000);
-	scene.scene.tweens.addCounter({
-		from: 0,
-		to: 100,
-		duration: 100,
-		repeat: 2,
-		yoyo: true,
-		ease: Phaser.Math.Easing.Sine.InOut,
-		onUpdate: (tween) => {
-			const value = tween.getValue();
-			const colorObject = Phaser.Display.Color.Interpolate.ColorWithColor(
-				startColor,
-				endColor,
-				100,
-				value
-			);
-			const color = Phaser.Display.Color.GetColor(
-				colorObject.r,
-				colorObject.g,
-				colorObject.b
-			);
-			character.setTint(color);
-		},
-	});
 };
 
 export default class GameScene extends Phaser.Scene {
