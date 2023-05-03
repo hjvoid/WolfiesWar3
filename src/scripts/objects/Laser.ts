@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { facingForward, wolfie } from './GameScene';
+import { facingForward, wolfie } from '../scenes/gameScene';
 
 export class Laser extends Phaser.Physics.Arcade.Sprite {
 	constructor(scene, x, y) {

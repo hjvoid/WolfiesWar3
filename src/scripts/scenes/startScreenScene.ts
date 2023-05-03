@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-export default class StartScreen extends Phaser.Scene {
+export default class startScreen extends Phaser.Scene {
 	constructor() {
 		super({ key: 'start-screen' });
 	}
@@ -17,7 +17,7 @@ export default class StartScreen extends Phaser.Scene {
 		this.cameras.main.fadeIn(1000, 0, 0, 0);
 		// Add the splash background image
 		const bg = this.add.image(0, 0, 'startScreen1');
-		bg.setOrigin(0, 0).setDisplaySize(width, height);
+		bg.setOrigin(0, 0).setDisplaySize(Number(width), Number(height));
 
 		// Add the "Wolfie's War" text
 		const text = this.add.text(

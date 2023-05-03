@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { Lasers } from './Lasers';
-import { createAlignedParallax, gameOver, flashRedWhenHurt } from './utils';
+import { Lasers } from '../objects/Lasers';
+import { createAlignedParallax, gameOver, flashRedWhenHurt } from '../utils/utils';
 
 //need to get rid of all of this and export into classes/functional components...?
 export let wolfie;
@@ -87,6 +87,9 @@ const createBounceOnCollision = (character, adversary, thisObject) => {
 };
 
 export default class GameScene extends Phaser.Scene {
+	score: number;
+	lasers: Lasers;
+	darkWalkers: Phaser.GameObjects.Group;
 	constructor() {
 		super({ key: 'game-scene' });
 	}
@@ -202,6 +205,7 @@ export default class GameScene extends Phaser.Scene {
 		);
 		//LAYERS
 		const ground = map.createLayer('ground', tileset);
+		
 		// Inhibits unecessary padding. See -> https://newdocs.phaser.io/docs/3.55.2/Phaser.Tilemaps.TilemapLayer#setCullPadding
 		const cullPadding = 0.1; // Set the cull padding to 10% of the layer size
 		ground.setCullPadding(ground.width * cullPadding);
@@ -334,12 +338,12 @@ export default class GameScene extends Phaser.Scene {
 
 		// COLLIDERS
 		// Wolfie and ground
-		this.physics.add.collider(ground, wolfie, (ground) => {
-			groundY = ground.y;
+		this.physics.add.collider(ground, wolfie, (groundLevel) => {
+			groundY = (groundLevel as Phaser.Physics.Arcade.Sprite).y;
 		});
 		// Walker and ground
-		this.physics.add.collider(ground, evilWalker, (ground) => {
-			groundY = ground.y;
+		this.physics.add.collider(ground, evilWalker, (groundLevel) => {
+			groundY = (groundLevel as Phaser.Physics.Arcade.Sprite).y;
 		});
 		// Wolfie and Walker
 		this.physics.add.collider(wolfie, evilWalker, () => {
@@ -355,8 +359,10 @@ export default class GameScene extends Phaser.Scene {
 		this.physics.world.enable(this.lasers);
 		this.lasers.children.iterate((laser) => {
 			this.physics.world.enable(laser);
-			laser.body.setAllowGravity(false);
-		});
+			if (laser.body instanceof Phaser.Physics.Arcade.Body) {
+			  laser.body.setAllowGravity(false);
+			}
+		  });
 
 		// PROJECTILES ANIMS
 		const projectilesLaser = {
