@@ -208,5 +208,13 @@ A huge thank you to Rich [@photonstorm](https://github.com/photonstorm) for crea
 
 The MIT License (MIT) 2021 - [Yannick Deubel](https://github.com/yandeu). Please have a look at the [LICENSE](LICENSE) for more details.
 
-Links I've found useful:
-https://github.com/yandeu/phaser-project-template#readme
+
+## Useful Links
+
+[Phaser Template](https://github.com/ourcade/phaser3-vite-template)
+[Spritesheet tool](https://www.leshylabs.com/apps/sstool/)
+[Working with spritesheets](https://www.youtube.com/watch?v=ElAmJj8Tfo8)
+[Working with parallax](https://www.youtube.com/watch?v=GwGzFczdpkg&t=1739s)
+[Shooting a groupt of sprites](https://labs.phaser.io/edit.html?src=src/physics/arcade/bullets%20group.js&v=3.55.2)
+[Another tutorial about shooting groups of animations](https://www.codecaptain.io/blog/game-development/shooting-bullets-phaser-3-using-arcade-physics-groups/696)
+[This template is take from....](https://github.com/yandeu/phaser-project-template#readme)
