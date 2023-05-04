@@ -5,7 +5,12 @@ import Phaser from 'phaser';
  * @param {string} texture
  * @param {number} scrollFactor
  */
-export const createAlignedParallax = (scene, count, texture, scrollFactor) => {
+export const createAlignedParallax = (
+	scene: Phaser.Scene,
+	count: number,
+	texture: string,
+	scrollFactor: number
+) => {
 	let x = 0;
 	for (let i = 0; i < count; ++i) {
 		const m = scene.add
@@ -17,7 +22,11 @@ export const createAlignedParallax = (scene, count, texture, scrollFactor) => {
 	}
 };
 
-export const gameOver = (scene, cam, time) => {
+export const gameOver = (
+	scene: Phaser.Scenes.ScenePlugin,
+	cam: Phaser.Cameras.Scene2D.Camera,
+	time: Phaser.Time.Clock
+) => {
 	cam.fadeOut(1000, 0, 0, 0);
 	time.delayedCall(500, () => {
 		scene.pause();
@@ -25,7 +34,10 @@ export const gameOver = (scene, cam, time) => {
 	});
 };
 
-export const flashRedWhenHurt = (character, scene) => {
+export const flashRedWhenHurt = (
+	character: any,
+	scene: Phaser.Scenes.ScenePlugin
+) => {
 	const startColor = Phaser.Display.Color.ValueToColor(0xffffff);
 	const endColor = Phaser.Display.Color.ValueToColor(0xff0000);
 	scene.scene.tweens.addCounter({

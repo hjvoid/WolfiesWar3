@@ -1,21 +1,40 @@
 import Phaser from 'phaser';
 import { Lasers } from '../objects/Lasers';
-import { createAlignedParallax, gameOver, flashRedWhenHurt } from '../utils/utils';
+import {
+	createAlignedParallax,
+	gameOver,
+	flashRedWhenHurt,
+} from '../utils/utils';
 
 //need to get rid of all of this and export into classes/functional components...?
-export let wolfie;
-let cursors;
-let groundY;
-let evilWalker;
-let scoreText;
-let energyBar;
-let energyBarOverlay;
+export let wolfie: any;
+let cursors: {
+	left: any;
+	right: any;
+	up: any;
+	space: any;
+	down?: Phaser.Input.Keyboard.Key;
+	shift?: Phaser.Input.Keyboard.Key;
+};
+let groundY: number;
+let evilWalker: any;
+let scoreText: Phaser.GameObjects.Text;
+let energyBar: Phaser.GameObjects.Graphics;
+let energyBarOverlay: Phaser.GameObjects.Image;
 let wolfieIsHurt = false;
-let wolfieEnergy;
-let darkWalker;
-let gate;
-let floorSpikes;
-let skySpikes;
+let wolfieEnergy: number;
+let darkWalker: any;
+let gate: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+let floorSpikes:
+	| Phaser.GameObjects.GameObject
+	| Phaser.GameObjects.Group
+	| Phaser.GameObjects.GameObject[]
+	| Phaser.GameObjects.Group[];
+let skySpikes:
+	| Phaser.GameObjects.GameObject
+	| Phaser.GameObjects.Group
+	| Phaser.GameObjects.GameObject[]
+	| Phaser.GameObjects.Group[];
 const MAP_WIDTH = 800;
 const MAP_HEIGHT = 600;
 export let facingForward = true;
@@ -24,7 +43,6 @@ const scale = Math.min(
 	window.innerWidth / MAP_WIDTH,
 	window.innerHeight / MAP_HEIGHT
 );
-
 
 const createBounceOnCollision = (character, adversary, thisObject) => {
 	if (adversary === floorSpikes) {
@@ -205,7 +223,7 @@ export default class GameScene extends Phaser.Scene {
 		);
 		//LAYERS
 		const ground = map.createLayer('ground', tileset);
-		
+
 		// Inhibits unecessary padding. See -> https://newdocs.phaser.io/docs/3.55.2/Phaser.Tilemaps.TilemapLayer#setCullPadding
 		const cullPadding = 0.1; // Set the cull padding to 10% of the layer size
 		ground.setCullPadding(ground.width * cullPadding);
@@ -360,9 +378,9 @@ export default class GameScene extends Phaser.Scene {
 		this.lasers.children.iterate((laser) => {
 			this.physics.world.enable(laser);
 			if (laser.body instanceof Phaser.Physics.Arcade.Body) {
-			  laser.body.setAllowGravity(false);
+				laser.body.setAllowGravity(false);
 			}
-		  });
+		});
 
 		// PROJECTILES ANIMS
 		const projectilesLaser = {
