@@ -35,11 +35,11 @@ let skySpikes:
 	| Phaser.GameObjects.Group
 	| Phaser.GameObjects.GameObject[]
 	| Phaser.GameObjects.Group[];
-const MAP_WIDTH = 800;
-const MAP_HEIGHT = 600;
+export const MAP_WIDTH = 800;
+export const MAP_HEIGHT = 600;
 export let facingForward = true;
 
-const scale = Math.min(
+export const scale = Math.min(
 	window.innerWidth / MAP_WIDTH,
 	window.innerHeight / MAP_HEIGHT
 );
@@ -133,8 +133,8 @@ export default class GameScene extends Phaser.Scene {
 		// WOLFIE
 		this.load.atlas(
 			'wolfie',
-			'assets/sprites/wolfie4.png',
-			'assets/sprites/wolfie4.json'
+			'assets/sprites/wolfieExp.png',
+			'assets/sprites/wolfieExp.json'
 		);
 
 		// EVILWALKER
@@ -161,8 +161,8 @@ export default class GameScene extends Phaser.Scene {
 		//PROJECTILES
 		this.load.atlas(
 			'redPulse',
-			'assets/sprites/projectiles/redPulse.png',
-			'assets/sprites/projectiles/redPulse.json'
+			'assets/sprites/projectiles/waterFire/water.png',
+			'assets/sprites/projectiles/waterFire/water.json'
 		);
 
 		//ENERGYBAR
@@ -273,11 +273,11 @@ export default class GameScene extends Phaser.Scene {
 		this.anims.create({
 			key: 'move',
 			frames: this.anims.generateFrameNames('wolfie', {
-				prefix: 'move',
-				end: 1,
+				prefix: 'run',
+				end: 10,
 				zeroPad: 4,
 			}),
-			frameRate: 8,
+			frameRate: 30,
 			repeat: -1,
 		});
 
@@ -293,17 +293,17 @@ export default class GameScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
-		this.anims.create({
-			key: 'hurt',
-			frames: this.anims.generateFrameNames('wolfie', {
-				prefix: 'hurt',
-				start: 0,
-				end: 1,
-				zeroPad: 4,
-			}),
-			frameRate: 60,
-			repeat: -1,
-		});
+		// this.anims.create({
+		// 	key: 'hurt',
+		// 	frames: this.anims.generateFrameNames('wolfie', {
+		// 		prefix: 'hurt',
+		// 		start: 0,
+		// 		end: 1,
+		// 		zeroPad: 4,
+		// 	}),
+		// 	frameRate: 60,
+		// 	repeat: -1,
+		// });
 
 		// EVILWALKER ANIMS
 		this.anims.create({
@@ -386,10 +386,12 @@ export default class GameScene extends Phaser.Scene {
 		const projectilesLaser = {
 			key: 'redPulse',
 			frames: this.anims.generateFrameNames('redPulse', {
-				prefix: 'redPulse',
-				end: 3,
+				prefix: 'waveFire',
+				start: 0,
+				end: 16,
 				zeroPad: 4,
 			}),
+			frameRate: 20,
 			repeat: -1,
 		};
 		this.anims.create(projectilesLaser);
