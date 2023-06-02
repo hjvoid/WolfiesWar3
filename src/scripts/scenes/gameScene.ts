@@ -144,7 +144,7 @@ export default class GameScene extends Phaser.Scene {
 			'assets/sprites/evilWalker.json'
 		);
 
-		//hypnoNymph
+		//HYPNONYMPH
 		this.load.atlas(
 			'hypnoNymph',
 			'assets/sprites/hypnoNymph.png',
@@ -161,8 +161,8 @@ export default class GameScene extends Phaser.Scene {
 		//PROJECTILES
 		this.load.atlas(
 			'redPulse',
-			'assets/sprites/projectiles/waterFire/water.png',
-			'assets/sprites/projectiles/waterFire/water.json'
+			'assets/sprites/projectiles/fireballs/fireballYellow.png',
+			'assets/sprites/projectiles/fireballs/fireballYellow.json'
 		);
 
 		//ENERGYBAR
@@ -177,6 +177,7 @@ export default class GameScene extends Phaser.Scene {
 			'assets/obstacles/hokusaiAssetsSmallLightAndBright.png'
 		);
 
+		//GATE
 		this.load.image('gate', 'assets/obstacles/level_gate1.png');
 		this.load.tilemapTiledJSON('tilemap', 'assets/obstacles/hokusai.json');
 
@@ -293,18 +294,6 @@ export default class GameScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
-		// this.anims.create({
-		// 	key: 'hurt',
-		// 	frames: this.anims.generateFrameNames('wolfie', {
-		// 		prefix: 'hurt',
-		// 		start: 0,
-		// 		end: 1,
-		// 		zeroPad: 4,
-		// 	}),
-		// 	frameRate: 60,
-		// 	repeat: -1,
-		// });
-
 		// EVILWALKER ANIMS
 		this.anims.create({
 			key: 'walk',
@@ -360,9 +349,8 @@ export default class GameScene extends Phaser.Scene {
 			groundY = (groundLevel as Phaser.Physics.Arcade.Sprite).y;
 		});
 		// Walker and ground
-		this.physics.add.collider(ground, evilWalker, (groundLevel) => {
-			groundY = (groundLevel as Phaser.Physics.Arcade.Sprite).y;
-		});
+		this.physics.add.collider(ground, evilWalker);
+
 		// Wolfie and Walker
 		this.physics.add.collider(wolfie, evilWalker, () => {
 			flashRedWhenHurt(wolfie, this.scene);
@@ -386,12 +374,12 @@ export default class GameScene extends Phaser.Scene {
 		const projectilesLaser = {
 			key: 'redPulse',
 			frames: this.anims.generateFrameNames('redPulse', {
-				prefix: 'waveFire',
+				prefix: 'rotate',
 				start: 0,
-				end: 16,
+				end: 8,
 				zeroPad: 4,
 			}),
-			frameRate: 20,
+			frameRate: 16,
 			repeat: -1,
 		};
 		this.anims.create(projectilesLaser);
@@ -548,7 +536,7 @@ export default class GameScene extends Phaser.Scene {
 		// EVILWALKER
 		// Play walk animation if not already playing
 		if (!evilWalker.anims.isPlaying) {
-			evilWalker.anims.play('walk', true).setVelocityX(50);
+			evilWalker.anims.play('walk', true).setVelocityX(50 * scale);
 		}
 		if (
 			evilWalker.anims.currentAnim.key === 'walk' &&
@@ -556,7 +544,7 @@ export default class GameScene extends Phaser.Scene {
 		) {
 			evilWalker.anims.stop();
 			evilWalker.flipX = true;
-			evilWalker.anims.play('walk', true).setVelocityX(-50);
+			evilWalker.anims.play('walk', true).setVelocityX(-50 * scale);
 		} else if (
 			evilWalker.anims.currentAnim.key === 'walk' &&
 			evilWalker.x < 270 * scale &&
@@ -564,20 +552,20 @@ export default class GameScene extends Phaser.Scene {
 		) {
 			evilWalker.anims.stop();
 			evilWalker.flipX = false;
-			evilWalker.anims.play('walk', true).setVelocityX(50);
+			evilWalker.anims.play('walk', true).setVelocityX(50 * scale);
 		}
 
 		// WOLF CONTROLLERS
 		if (cursors.left.isDown && !wolfieIsHurt) {
 			facingForward = false;
 			wolfie.flipX = false;
-			wolfie.setVelocityX(-200);
+			wolfie.setVelocityX(-200 * scale);
 			wolfie.anims.play('move', true);
 			cam.scrollX -= speed;
 		} else if (cursors.right.isDown && !wolfieIsHurt) {
 			facingForward = true;
 			wolfie.flipX = true;
-			wolfie.setVelocityX(200);
+			wolfie.setVelocityX(200 * scale);
 			wolfie.anims.play('move', true);
 		} else {
 			wolfie.setVelocityX(0);
