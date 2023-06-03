@@ -5,6 +5,7 @@ import {
 	gameOver,
 	flashRedWhenHurt,
 } from '../utils/utils';
+import { Laser } from '../objects/Laser';
 
 //need to get rid of all of this and export into classes/functional components...?
 export let wolfie: any;
@@ -160,7 +161,7 @@ export default class GameScene extends Phaser.Scene {
 
 		//PROJECTILES
 		this.load.atlas(
-			'redPulse',
+			'fireballYellow',
 			'assets/sprites/projectiles/fireballs/fireballYellow.png',
 			'assets/sprites/projectiles/fireballs/fireballYellow.json'
 		);
@@ -371,9 +372,9 @@ export default class GameScene extends Phaser.Scene {
 		});
 
 		// PROJECTILES ANIMS
-		const projectilesLaser = {
-			key: 'redPulse',
-			frames: this.anims.generateFrameNames('redPulse', {
+		const fireballFired = {
+			key: 'fired',
+			frames: this.anims.generateFrameNames('fireballYellow', {
 				prefix: 'rotate',
 				start: 0,
 				end: 8,
@@ -382,7 +383,21 @@ export default class GameScene extends Phaser.Scene {
 			frameRate: 16,
 			repeat: -1,
 		};
-		this.anims.create(projectilesLaser);
+		const fireballImpact = {
+			key: 'impact',
+			frames: this.anims.generateFrameNames('fireballYellow', {
+				prefix: 'impact',
+				start: 0,
+				end: 3,
+				zeroPad: 4,
+			}),
+			frameRate: 16,
+			repeat: 1,
+			hideOnComplete: true,
+		};
+
+		this.anims.create(fireballFired);
+		this.anims.create(fireballImpact);
 
 		// OBJECTS LAYER
 		const objectsLayer = map.getObjectLayer('objects');
@@ -441,8 +456,23 @@ export default class GameScene extends Phaser.Scene {
 							laser,
 							this.darkWalkers,
 							(laser, darkWalker) => {
+								const impactZoneX =
+									darkWalker.body.x +
+									darkWalker.body.halfWidth;
+								const impactZoneY =
+									darkWalker.body.y +
+									darkWalker.body.halfHeight;
 								darkWalker.destroy();
 								laser.destroy();
+								const expolosion = this.physics.add
+									.sprite(
+										impactZoneX,
+										impactZoneY,
+										'fireballYellow'
+									)
+									.setScale(0.2 * scale, 0.2 * scale);
+								expolosion.body.setAllowGravity(false);
+								expolosion.anims.play('impact');
 							}
 						);
 					});
@@ -590,7 +620,7 @@ export default class GameScene extends Phaser.Scene {
 		// LASERS
 		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
 			this.lasers.fireLaser(wolfie.x - 10, wolfie.y);
-			this.lasers.playAnimation('redPulse');
+			this.lasers.playAnimation('fired');
 		}
 	}
 }
