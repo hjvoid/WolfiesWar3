@@ -188,6 +188,9 @@ export default class GameScene extends Phaser.Scene {
 			'assets/tokens/heartPulse.png',
 			'assets/tokens/heartPulse.json'
 		);
+
+		//MOVING PLATFORM
+		this.load.image('movingCloud', 'assets/obstacles/movingCloud.png');
 	}
 
 	create() {
@@ -264,7 +267,8 @@ export default class GameScene extends Phaser.Scene {
 			height * scale - 50 // height - 50px (to allow the character to fall through)
 		);
 		wolfie = this.physics.add
-			.sprite(130 * scale, 200 * scale, 'wolfie')
+			// .sprite(130 * scale, 200 * scale, 'wolfie')
+			.sprite(2000 * scale, 200 * scale, 'wolfie')
 			.setScale(0.23 * scale, 0.23 * scale)
 			.setBounce(0.3)
 			.setCollideWorldBounds(true);
@@ -509,6 +513,23 @@ export default class GameScene extends Phaser.Scene {
 			}
 		});
 
+		//MOVING PLATFORM
+		const movingCloud = this.physics.add
+			.sprite(width * 3 - 220 * scale, 100 * scale, 'movingCloud')
+			.setScale(0.3 * scale, 0.3 * scale)
+			.setImmovable(true)
+			.setCollideWorldBounds(true);
+		movingCloud.body.setAllowGravity(false);
+
+		this.tweens.timeline({
+			targets: movingCloud.body.velocity,
+			loop: -1,
+			tweens: [
+				{ x: 70, y: 0, duration: 1000, ease: 'Stepped' },
+				{ x: -70, y: 0, duration: 1000, ease: 'Stepped' },
+			],
+		});
+
 		// KEYBOARD CONTROLLER INITIALISE
 		cursors = this.input.keyboard.createCursorKeys();
 
@@ -604,7 +625,7 @@ export default class GameScene extends Phaser.Scene {
 		if (cursors.up.isDown && !wolfieIsHurt) {
 			wolfie.anims.play('jump', true);
 			if (Math.round(wolfie.y) === Math.round(groundY)) {
-				wolfie.setVelocityY(-200 * scale);
+				wolfie.setVelocityY(-160 * scale);
 			}
 		}
 		if (wolfieIsHurt) {
