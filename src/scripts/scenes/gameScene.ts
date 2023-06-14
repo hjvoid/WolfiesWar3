@@ -267,8 +267,7 @@ export default class GameScene extends Phaser.Scene {
 			height * scale - 50 // height - 50px (to allow the character to fall through)
 		);
 		wolfie = this.physics.add
-			// .sprite(130 * scale, 200 * scale, 'wolfie')
-			.sprite(2000 * scale, 200 * scale, 'wolfie')
+			.sprite(130 * scale, 200 * scale, 'wolfie')
 			.setScale(0.23 * scale, 0.23 * scale)
 			.setBounce(0.3)
 			.setCollideWorldBounds(true);
