@@ -36,6 +36,7 @@ let skySpikes:
 	| Phaser.GameObjects.Group
 	| Phaser.GameObjects.GameObject[]
 	| Phaser.GameObjects.Group[];
+let keyHasBeenCaptured = false;
 export const MAP_WIDTH = 800;
 export const MAP_HEIGHT = 600;
 export let facingForward = true;
@@ -158,6 +159,9 @@ export default class GameScene extends Phaser.Scene {
 			'assets/tokens/cookie1.png',
 			'assets/tokens/cookie1.json'
 		);
+
+		// LEVEL KEY
+		this.load.image('levelKey', 'assets/tokens/cloudForestKey.png');
 
 		//PROJECTILES
 		this.load.atlas(
@@ -419,6 +423,29 @@ export default class GameScene extends Phaser.Scene {
 					this.physics.add.collider(wolfie, biscuit, () => {
 						this.score += 5;
 						biscuit.destroy();
+					});
+					break;
+				}
+				case 'levelKey': {
+					let levelKey = this.physics.add.sprite(
+						x * scale,
+						y * scale,
+						'levelKey'
+					);
+					levelKey.setScale(0.18 * scale, 0.18 * scale);
+					levelKey.setRotation(-0.5);
+					levelKey.body.setAllowGravity(false);
+					this.tweens.add({
+						targets: levelKey,
+						rotation: Phaser.Math.DegToRad(10), // Final rotation angle
+						duration: 1200, // Duration of each half of the tween in milliseconds
+						ease: 'Elastic.In', // Easing function to control the tween
+						yoyo: true, // Make the tween reverse back to its initial state
+						repeat: -1, // Repeat the tween indefinitely
+					});
+					this.physics.add.collider(wolfie, levelKey, () => {
+						keyHasBeenCaptured = true;
+						levelKey.destroy();
 					});
 					break;
 				}

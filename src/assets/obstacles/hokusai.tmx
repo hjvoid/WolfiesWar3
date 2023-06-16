@@ -104179,7 +104179,7 @@
   <object id="14" name="wolfieBiscuit" x="756.822" y="118.86"/>
   <object id="15" name="wolfieBiscuit" x="1068.53" y="383.263"/>
   <object id="17" name="wolfieBiscuit" x="1959.98" y="75.1971"/>
-  <object id="18" name="wolfieBiscuit" x="2343.24" y="65.4942"/>
+  <object id="18" name="levelKey" x="2343.24" y="65.4942"/>
   <object id="19" name="wolfieBiscuit" x="1627.65" y="474.227"/>
   <object id="20" name="wolfieBiscuit" x="573.035" y="365.511"/>
   <object id="23" name="spikes" x="337.448" y="458.033" width="87.4601" height="100.091"/>
