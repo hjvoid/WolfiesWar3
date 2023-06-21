@@ -5,10 +5,11 @@ import {
 	gameOver,
 	flashRedWhenHurt,
 } from '../utils/utils';
+import Hero from '../sprites/Hero';
 import { Laser } from '../objects/Laser';
 
 //need to get rid of all of this and export into classes/functional components...?
-export let wolfie: any;
+export let hero: any;
 let cursors: {
 	left: any;
 	right: any;
@@ -54,7 +55,7 @@ const createBounceOnCollision = (character, adversary, thisObject) => {
 			ease: 'Power1',
 			duration: 300,
 			onComplete: function () {
-				if (character === wolfie) {
+				if (character === hero) {
 					wolfieEnergy -= 20;
 					wolfieIsHurt = true;
 				}
@@ -67,7 +68,7 @@ const createBounceOnCollision = (character, adversary, thisObject) => {
 			ease: 'Power1',
 			duration: 400,
 			onComplete: function () {
-				if (character === wolfie) {
+				if (character === hero) {
 					wolfieEnergy -= 20;
 					wolfieIsHurt = true;
 				}
@@ -82,7 +83,7 @@ const createBounceOnCollision = (character, adversary, thisObject) => {
 				ease: 'Power1',
 				duration: 500,
 				onComplete: function () {
-					if (character === wolfie) {
+					if (character === hero) {
 						wolfieEnergy -= 20;
 						wolfieIsHurt = true;
 					}
@@ -96,7 +97,7 @@ const createBounceOnCollision = (character, adversary, thisObject) => {
 				ease: 'Power1',
 				duration: 500,
 				onComplete: function () {
-					if (character === wolfie && wolfieEnergy > 0) {
+					if (character === hero && wolfieEnergy > 0) {
 						wolfieEnergy -= 20;
 						wolfieIsHurt = true;
 					}
@@ -265,42 +266,18 @@ export default class GameScene extends Phaser.Scene {
 
 		// WOLFIE
 		const wolfiesWorldBounds = new Phaser.Geom.Rectangle(
-			0, // x
-			0, // y
-			width, // width
+			0 * scale, // x
+			0 * scale, // y
+			width * scale, // width
 			height * scale - 50 // height - 50px (to allow the character to fall through)
 		);
-		wolfie = this.physics.add
-			.sprite(130 * scale, 200 * scale, 'wolfie')
-			.setScale(0.23 * scale, 0.23 * scale)
+
+		//EXPERIMENTAL HERO
+		hero = new Hero(this, 100 * scale, 200 * scale, 'wolfie');
+		hero.flipX = true;
+		hero.setScale(0.23 * scale, 0.23 * scale)
 			.setBounce(0.3)
 			.setCollideWorldBounds(true);
-		wolfie.flipX = true;
-		wolfie.body.world.setBounds(wolfiesWorldBounds);
-
-		// WOLFIE ANIMS
-		this.anims.create({
-			key: 'move',
-			frames: this.anims.generateFrameNames('wolfie', {
-				prefix: 'run',
-				end: 10,
-				zeroPad: 4,
-			}),
-			frameRate: 30,
-			repeat: -1,
-		});
-
-		this.anims.create({
-			key: 'jump',
-			frames: this.anims.generateFrameNames('wolfie', {
-				prefix: 'jump',
-				start: 0,
-				end: 0,
-				zeroPad: 4,
-			}),
-			frameRate: 1,
-			repeat: -1,
-		});
 
 		// EVILWALKER ANIMS
 		this.anims.create({
@@ -352,20 +329,21 @@ export default class GameScene extends Phaser.Scene {
 		});
 
 		// COLLIDERS
-		// Wolfie and ground
-		this.physics.add.collider(ground, wolfie, (groundLevel) => {
+		// Hero and ground
+		this.physics.add.collider(ground, hero, (groundLevel) => {
 			groundY = (groundLevel as Phaser.Physics.Arcade.Sprite).y;
 		});
+
 		// Walker and ground
 		this.physics.add.collider(ground, evilWalker);
 
-		// Wolfie and Walker
-		this.physics.add.collider(wolfie, evilWalker, () => {
-			flashRedWhenHurt(wolfie, this.scene);
+		// Hero and Walker
+		this.physics.add.collider(hero, evilWalker, () => {
+			flashRedWhenHurt(hero, this.scene);
 			if (wolfieEnergy > 0) {
 				wolfieIsHurt = true;
 			}
-			createBounceOnCollision(wolfie, evilWalker, this);
+			createBounceOnCollision(hero, evilWalker, this);
 		});
 
 		//PROJECTILES
@@ -420,7 +398,7 @@ export default class GameScene extends Phaser.Scene {
 					biscuit.setScale(0.18 * scale, 0.18 * scale);
 					biscuit.body.setAllowGravity(false);
 					biscuit.anims.play('rotate', true);
-					this.physics.add.collider(wolfie, biscuit, () => {
+					this.physics.add.collider(hero, biscuit, () => {
 						this.score += 5;
 						biscuit.destroy();
 					});
@@ -443,7 +421,7 @@ export default class GameScene extends Phaser.Scene {
 						yoyo: true, // Make the tween reverse back to its initial state
 						repeat: -1, // Repeat the tween indefinitely
 					});
-					this.physics.add.collider(wolfie, levelKey, () => {
+					this.physics.add.collider(hero, levelKey, () => {
 						keyHasBeenCaptured = true;
 						levelKey.destroy();
 					});
@@ -458,7 +436,7 @@ export default class GameScene extends Phaser.Scene {
 					heart.setScale(0.12 * scale, 0.12 * scale);
 					heart.body.setAllowGravity(false);
 					heart.anims.play('heart', true);
-					this.physics.add.collider(wolfie, heart, () => {
+					this.physics.add.collider(hero, heart, () => {
 						wolfieEnergy = 200;
 						wolfieIsHurt = true;
 						heart.destroy();
@@ -477,9 +455,9 @@ export default class GameScene extends Phaser.Scene {
 					darkWalker.anims.play('stationary', true);
 					this.darkWalkers.add(darkWalker);
 
-					this.physics.add.collider(wolfie, darkWalker, () => {
-						flashRedWhenHurt(wolfie, this.scene);
-						createBounceOnCollision(wolfie, darkWalker, this);
+					this.physics.add.collider(hero, darkWalker, () => {
+						flashRedWhenHurt(hero, this.scene);
+						createBounceOnCollision(hero, darkWalker, this);
 					});
 					this.lasers.children.iterate((laser) => {
 						this.physics.add.collider(
@@ -516,9 +494,9 @@ export default class GameScene extends Phaser.Scene {
 						height
 					);
 					this.physics.add.existing(floorSpikes, true);
-					this.physics.add.collider(wolfie, floorSpikes, () => {
-						flashRedWhenHurt(wolfie, this.scene);
-						createBounceOnCollision(wolfie, floorSpikes, this);
+					this.physics.add.collider(hero, floorSpikes, () => {
+						flashRedWhenHurt(hero, this.scene);
+						createBounceOnCollision(hero, floorSpikes, this);
 					});
 					break;
 				}
@@ -530,9 +508,9 @@ export default class GameScene extends Phaser.Scene {
 						height
 					);
 					this.physics.add.existing(skySpikes, true);
-					this.physics.add.collider(wolfie, skySpikes, () => {
-						flashRedWhenHurt(wolfie, this.scene);
-						createBounceOnCollision(wolfie, skySpikes, this);
+					this.physics.add.collider(hero, skySpikes, () => {
+						flashRedWhenHurt(hero, this.scene);
+						createBounceOnCollision(hero, skySpikes, this);
 					});
 					break;
 				}
@@ -589,22 +567,22 @@ export default class GameScene extends Phaser.Scene {
 		const speed = 3;
 		const { width, height } = this.scale;
 		scoreText.x = cam.scrollX + 10;
-		if (wolfieEnergy <= 0 || wolfie.y + 29 * scale > height) {
-			wolfie.setImmovable(true);
+		if (wolfieEnergy <= 0 || hero.y + 29 * scale > height) {
+			hero.setImmovable(true);
 			gameOver(this.scene, cam, time);
 		}
 
-		if (wolfie.x >= gate.x - 20 && wolfie.y >= gate.y + 20) {
+		if (hero.x >= gate.x - 20 && hero.y >= gate.y + 20) {
 			gameOver(this.scene, cam, time);
 		}
 
-		// Wolfie Health
+		// hero Health
 		energyBar.x = cam.scrollX + 10;
 		energyBarOverlay.x = cam.scrollX + 10;
 
 		// CAMERA
-		if (wolfie.x > width * 0.5) {
-			cam.startFollow(wolfie);
+		if (hero.x > width * 0.5) {
+			cam.startFollow(hero);
 		}
 
 		// SCORE
@@ -635,23 +613,23 @@ export default class GameScene extends Phaser.Scene {
 		// WOLF CONTROLLERS
 		if (cursors.left.isDown && !wolfieIsHurt) {
 			facingForward = false;
-			wolfie.flipX = false;
-			wolfie.setVelocityX(-200 * scale);
-			wolfie.anims.play('move', true);
+			hero.flipX = false;
+			hero.setVelocityX(-200 * scale);
+			hero.anims.play('move', true);
 			cam.scrollX -= speed;
 		} else if (cursors.right.isDown && !wolfieIsHurt) {
 			facingForward = true;
-			wolfie.flipX = true;
-			wolfie.setVelocityX(200 * scale);
-			wolfie.anims.play('move', true);
+			hero.flipX = true;
+			hero.setVelocityX(200 * scale);
+			hero.anims.play('move', true);
 		} else {
-			wolfie.setVelocityX(0);
-			wolfie.anims.play('move', false);
+			hero.setVelocityX(0);
+			hero.anims.play('move', false);
 		}
 		if (cursors.up.isDown && !wolfieIsHurt) {
-			wolfie.anims.play('jump', true);
-			if (Math.round(wolfie.y) === Math.round(groundY)) {
-				wolfie.setVelocityY(-160 * scale);
+			hero.anims.play('jump', true);
+			if (Math.round(hero.y) === Math.round(groundY)) {
+				hero.setVelocityY(-160 * scale);
 			}
 		}
 		if (wolfieIsHurt) {
@@ -666,7 +644,7 @@ export default class GameScene extends Phaser.Scene {
 		}
 		// LASERS
 		if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-			this.lasers.fireLaser(wolfie.x - 10, wolfie.y);
+			this.lasers.fireLaser(hero.x - 10, hero.y);
 			this.lasers.playAnimation('fired');
 		}
 	}

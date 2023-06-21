@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { facingForward, wolfie, scale } from '../scenes/gameScene';
+import { facingForward, hero, scale } from '../scenes/gameScene';
 
 export class Laser extends Phaser.Physics.Arcade.Sprite {
 	constructor(scene, x, y) {
@@ -21,7 +21,7 @@ export class Laser extends Phaser.Physics.Arcade.Sprite {
 
 	preUpdate(time, delta) {
 		super.preUpdate(time, delta);
-		if (this.x >= wolfie.x + 800 * scale) {
+		if (this.x >= hero.x + 800 * scale) {
 			this.setActive(false);
 			this.setVisible(false);
 		}
