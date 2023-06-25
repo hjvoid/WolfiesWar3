@@ -6,15 +6,15 @@ import {
 	flashRedWhenHurt,
 } from '../utils/utils';
 import Hero from '../sprites/Hero';
-import { Laser } from '../objects/Laser';
+import backgroundLayers from '../backgroundPaths/levelOneBackgrounds.json';
 
 //need to get rid of all of this and export into classes/functional components...?
-export let hero: any;
+export let hero: Phaser.Physics.Arcade.Sprite;
 let cursors: {
-	left: any;
-	right: any;
-	up: any;
-	space: any;
+	left: Phaser.Input.Keyboard.Key;
+	right: Phaser.Input.Keyboard.Key;
+	up: Phaser.Input.Keyboard.Key;
+	space: Phaser.Input.Keyboard.Key;
 	down?: Phaser.Input.Keyboard.Key;
 	shift?: Phaser.Input.Keyboard.Key;
 };
@@ -23,7 +23,7 @@ let evilWalker: any;
 let scoreText: Phaser.GameObjects.Text;
 let energyBar: Phaser.GameObjects.Graphics;
 let energyBarOverlay: Phaser.GameObjects.Image;
-let wolfieIsHurt = false;
+let wolfieIsHurt: Boolean = false;
 let wolfieEnergy: number;
 let darkWalker: any;
 let gate: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -117,20 +117,7 @@ export default class GameScene extends Phaser.Scene {
 	}
 	preload() {
 		// BACKGROUND IMAGES
-		const allBackgrounds = {
-			1: 'assets/backgroundLayers/hokusaiForest1.png',
-			2: 'assets/backgroundLayers/hokusaiForest2.png',
-			3: 'assets/backgroundLayers/hokusaiForest3.png',
-			4: 'assets/backgroundLayers/hokusaiForest4.png',
-			5: 'assets/backgroundLayers/hokusaiForest5.png',
-			6: 'assets/backgroundLayers/hokusaiForest6.png',
-			7: 'assets/backgroundLayers/hokusaiForest7.png',
-			8: 'assets/backgroundLayers/hokusaiForest8.png',
-			9: 'assets/backgroundLayers/hokusaiForest9.png',
-			10: 'assets/backgroundLayers/hokusaiForest10Light.png',
-			11: 'assets/backgroundLayers/hokusaiForest11.png',
-		};
-		for (const [key, value] of Object.entries(allBackgrounds)) {
+		for (const [key, value] of Object.entries(backgroundLayers)) {
 			this.load.image(key, value);
 		}
 
@@ -287,7 +274,7 @@ export default class GameScene extends Phaser.Scene {
 			.setCollideWorldBounds(true);
 
 		// EVILWALKER ANIMS
-		this.anims.create({
+		const evilWalkerWalking = {
 			key: 'walk',
 			frames: this.anims.generateFrameNames('evilWalker', {
 				prefix: 'walk',
@@ -296,10 +283,10 @@ export default class GameScene extends Phaser.Scene {
 			}),
 			frameRate: 9,
 			repeat: -1,
-		});
+		};
 
 		//HYPNONYMPH ANIMS
-		this.anims.create({
+		const hypnoNymphStationary = {
 			key: 'stationary',
 			frames: this.anims.generateFrameNames('hypnoNymph', {
 				prefix: 'stationary',
@@ -308,10 +295,10 @@ export default class GameScene extends Phaser.Scene {
 			}),
 			frameRate: 6,
 			repeat: -1,
-		});
+		};
 
 		// BISCUIT ANIMS
-		this.anims.create({
+		const rotateDogBiscuit = {
 			key: 'rotate',
 			frames: this.anims.generateFrameNames('dogBiscuit', {
 				prefix: 'rotate',
@@ -320,10 +307,10 @@ export default class GameScene extends Phaser.Scene {
 			}),
 			frameRate: 15,
 			repeat: -1,
-		});
+		};
 
 		// HEART ANIMS
-		this.anims.create({
+		const heartPulse = {
 			key: 'heart',
 			frames: this.anims.generateFrameNames('heartPulse', {
 				prefix: 'pulsing',
@@ -333,7 +320,39 @@ export default class GameScene extends Phaser.Scene {
 			}),
 			frameRate: 7,
 			repeat: -1,
-		});
+		};
+
+		// PROJECTILES ANIMS
+		const fireballFired = {
+			key: 'fired',
+			frames: this.anims.generateFrameNames('fireballYellow', {
+				prefix: 'rotate',
+				start: 0,
+				end: 8,
+				zeroPad: 4,
+			}),
+			frameRate: 16,
+			repeat: -1,
+		};
+		const fireballImpact = {
+			key: 'impact',
+			frames: this.anims.generateFrameNames('fireballYellow', {
+				prefix: 'impact',
+				start: 0,
+				end: 3,
+				zeroPad: 4,
+			}),
+			frameRate: 16,
+			repeat: 1,
+			hideOnComplete: true,
+		};
+
+		this.anims.create(evilWalkerWalking);
+		this.anims.create(hypnoNymphStationary);
+		this.anims.create(rotateDogBiscuit);
+		this.anims.create(heartPulse);
+		this.anims.create(fireballFired);
+		this.anims.create(fireballImpact);
 
 		// COLLIDERS
 		// Hero and ground
@@ -381,33 +400,6 @@ export default class GameScene extends Phaser.Scene {
 			const reducedBounceVelocity = initialBounceVelocity * easingFactor;
 			laser.body.setVelocityY(-reducedBounceVelocity);
 		}
-		// PROJECTILES ANIMS
-		const fireballFired = {
-			key: 'fired',
-			frames: this.anims.generateFrameNames('fireballYellow', {
-				prefix: 'rotate',
-				start: 0,
-				end: 8,
-				zeroPad: 4,
-			}),
-			frameRate: 16,
-			repeat: -1,
-		};
-		const fireballImpact = {
-			key: 'impact',
-			frames: this.anims.generateFrameNames('fireballYellow', {
-				prefix: 'impact',
-				start: 0,
-				end: 3,
-				zeroPad: 4,
-			}),
-			frameRate: 16,
-			repeat: 1,
-			hideOnComplete: true,
-		};
-
-		this.anims.create(fireballFired);
-		this.anims.create(fireballImpact);
 
 		// OBJECTS LAYER
 		const objectsLayer = map.getObjectLayer('objects');
@@ -601,7 +593,7 @@ export default class GameScene extends Phaser.Scene {
 			gameOver(this.scene, cam, time);
 		}
 
-		// hero Health
+		// HERO HEALTH
 		energyBar.x = cam.scrollX + 10;
 		energyBarOverlay.x = cam.scrollX + 10;
 

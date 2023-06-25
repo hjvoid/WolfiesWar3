@@ -8,7 +8,7 @@ const config = {
 	width: 800,
 	height: 600,
 	scale: {
-		mode: Phaser.Scale.ScaleModes.FIT,
+		mode: Phaser.Scale.ScaleModes.WIDTH_CONTROLS_HEIGHT,
 		width: window.innerWidth,
 		height: window.innerWidth * 0.75,
 	},
