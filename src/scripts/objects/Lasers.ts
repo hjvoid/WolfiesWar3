@@ -2,11 +2,11 @@ import Phaser from 'phaser';
 import { Laser } from './Laser';
 
 export class Lasers extends Phaser.Physics.Arcade.Group {
-	constructor(scene) {
+	constructor(scene, laserCount) {
 		super(scene.physics.world, scene);
 
 		this.createMultiple({
-			frameQuantity: 10,
+			frameQuantity: laserCount,
 			key: 'unchargedLaser',
 			active: false,
 			visible: false,
@@ -16,7 +16,6 @@ export class Lasers extends Phaser.Physics.Arcade.Group {
 
 	fireLaser(x, y) {
 		let laser = this.getFirstDead(false);
-
 		if (laser) {
 			laser.fire(x, y);
 		}

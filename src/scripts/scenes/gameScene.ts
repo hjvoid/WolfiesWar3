@@ -111,6 +111,7 @@ export default class GameScene extends Phaser.Scene {
 	score: number;
 	lasers: Lasers;
 	darkWalkers: Phaser.GameObjects.Group;
+	laserCount: Number = 10;
 	constructor() {
 		super({ key: 'game-scene' });
 	}
@@ -264,16 +265,22 @@ export default class GameScene extends Phaser.Scene {
 			.setImmovable(true);
 		gate.body.allowGravity = false;
 
-		// WOLFIE
+		// WOLFIE'S WORLD BOUNDS
 		const wolfiesWorldBounds = new Phaser.Geom.Rectangle(
-			0 * scale, // x
-			0 * scale, // y
-			width * scale, // width
+			0, // x
+			0, // y
+			width * 4 * scale, // width
 			height * scale - 50 // height - 50px (to allow the character to fall through)
 		);
 
-		//EXPERIMENTAL HERO
-		hero = new Hero(this, 100 * scale, 200 * scale, 'wolfie');
+		// HERO
+		hero = new Hero(
+			this,
+			100 * scale,
+			200 * scale,
+			'wolfie',
+			wolfiesWorldBounds
+		);
 		hero.flipX = true;
 		hero.setScale(0.23 * scale, 0.23 * scale)
 			.setBounce(0.3)
@@ -347,15 +354,33 @@ export default class GameScene extends Phaser.Scene {
 		});
 
 		//PROJECTILES
-		this.lasers = new Lasers(this);
+		this.lasers = new Lasers(this, this.laserCount);
 		this.physics.world.enable(this.lasers);
 		this.lasers.children.iterate((laser) => {
 			this.physics.world.enable(laser);
 			if (laser.body instanceof Phaser.Physics.Arcade.Body) {
 				laser.body.setAllowGravity(false);
 			}
+			this.physics.add.collider(
+				laser,
+				evilWalker,
+				(laser) => {
+					setLaserToBounce(laser);
+					console.log('LASER: ', laser);
+					console.log('THIS: ', this);
+				},
+				null,
+				this
+			);
 		});
 
+		function setLaserToBounce(laser) {
+			laser.body.setAllowGravity(true);
+			const initialBounceVelocity = 300; // Initial bounce velocity
+			const easingFactor = 0.8; // Easing factor (adjust as needed)
+			const reducedBounceVelocity = initialBounceVelocity * easingFactor;
+			laser.body.setVelocityY(-reducedBounceVelocity);
+		}
 		// PROJECTILES ANIMS
 		const fireballFired = {
 			key: 'fired',
